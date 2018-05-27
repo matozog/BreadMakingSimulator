@@ -1,21 +1,23 @@
-#pragma once
+
 #ifndef PROGRAM_FARMER_H
 #define PROGRAM_FARMER_H
+#pragma once
 
+#include <thread>
+#include <mutex>
+#include "Road.h"
 #include <iostream>
 #include <string>
-#include <thread>
 #include <ncurses.h>
-#include <mutex>
 #include <unistd.h>
 
-using namespace std;
 
-extern mutex mutexConsole;
+using namespace std;
 
 class Farmer {
 
 private:
+    static Road roadHomeToFieldWithRye, roadHomeToFieldWithWheat, roadFieldWithWheatToMill, roadFieldWithRyeToMill, roadFromMillToHome;
     int x, y, x_start, y_start, ID;
     string state = "rest";
 
@@ -33,7 +35,8 @@ public:
     void setY(int y);
     void setID(int ID);
 
-    void setPosition(int x, int y);
+    void setPosition(int y, int x);
+    void clearPosition(int y, int x);
     void goFieldWithWheat();
     void goFieldWithRye();
     void pickUpGrain();
@@ -43,6 +46,5 @@ public:
     void simulatingLife();
     void closeThread();
 };
-
 
 #endif //PROGRAM_FARMER_H

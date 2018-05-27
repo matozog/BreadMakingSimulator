@@ -1,27 +1,35 @@
-//
-// Created by mateusz on 11.05.18.
-//
-
 #ifndef PROGRAM_ROAD_H
 #define PROGRAM_ROAD_H
 
-#include <string>
-#include <iostream>
+#pragma once
+
+#include "Field.h"
 #include <vector>
+#include <mutex>
 
 using namespace std;
 
-struct Coordinate{
-    int x, y;
-    bool available;
-    int stateOfCrop = 0; // only for Field class: 0 - lack, 1 - growing , 2 - ready for harvest
+enum ID_Road{
+    HomeToFWheat,
+    HomeToFRye,
+    FWheatToMill,
+    FRyeToMill,
+    MillToHome
 };
 
 class Road {
-    string typeOfRoad;
-    vector<Coordinate> road;
+    vector<CoordinateField> road;
     Coordinate start, end;
-};
+    ID_Road ID;
+    bool available;
 
+public:
+    Road(ID_Road);
+    void createRoad(vector<CoordinateField> tmpRoad);
+    void moveFarmerToDestination(class Farmer* farmer);
+    bool isAvailable();
+    void refreshRoad();
+    ID_Road getID();
+};
 
 #endif //PROGRAM_ROAD_H

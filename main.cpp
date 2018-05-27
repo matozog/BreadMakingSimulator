@@ -1,16 +1,12 @@
-#pragma once
-#include <iostream>
-#include <thread>
-#include <ncurses.h>
-#include <mutex>
-#include <fstream>
 #include "Farmer.h"
-#include "Field.h"
-#include <vector>
+#include <fstream>
+#include <atomic>
 
 using namespace std;
 
+
 mutex mutexConsole;
+mutex mutexFarmers;
 
 bool loadMapFromFile();
 void drawMap();
@@ -20,7 +16,9 @@ Field fieldWithRye(1);
 
 static string mapFileName = "map";
 int **mapArray;
+CoordinateField **mapFields;
 int widthMap = 0, heightMap = 0;
+bool endProgram = false;
 int amountOfFarmers = 9;  // max 9
 
 int main(int argc, char **argv ) {
@@ -29,6 +27,7 @@ int main(int argc, char **argv ) {
     initscr();
     nodelay(stdscr,TRUE);
     start_color();
+    curs_set(0);
 
     // declare threads and objects
 
@@ -134,12 +133,15 @@ bool loadMapFromFile()
 
     file >> heightMap >> widthMap;
     mapArray = new int* [heightMap];
+    mapFields = new CoordinateField* [heightMap];
 
     for(int i = 0; i< heightMap ; i++)
     {
         mapArray[i] = new int[widthMap];
+        mapFields[i] = new CoordinateField[widthMap];
         for(int j=0; j< widthMap; j++) {
             file >> mapArray[i][j];
+            mapFields[i][j] = {i,j,0,true};
         }
     }
     return true;

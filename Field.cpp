@@ -1,9 +1,7 @@
-//
-// Created by mateusz on 11.05.18.
-//
 
 #include "Field.h"
 
+extern mutex mutexConsole;
 
 Field::Field() {
 
@@ -21,15 +19,12 @@ void Field::setTypeOfCrop(int typeOfCrop) {
     Field::typeOfCrop = typeOfCrop;
 }
 
-vector<Coordinate> Field::getArea() const {
+vector<CoordinateField> Field::getArea() const {
     return area;
 }
 
 void Field::setArea(int x, int y) {
-    Coordinate coordinate;
-    coordinate.x = x;
-    coordinate.y = y;
-    this->area.push_back(coordinate);
+    this->area.push_back({y,x,0,true});
 }
 
 void Field::natureThread() {
@@ -37,7 +32,6 @@ void Field::natureThread() {
     while(true){
         usleep(rand()%2000000+3000000);
         refreshCrops();
-
     }
 }
 
