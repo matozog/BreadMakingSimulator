@@ -58,10 +58,6 @@ Road::Road(ID_Road ID){
 
 void Road::moveFarmerToDestination(Farmer *farmer) {
     for(int j=0; j<road.size()-1; j++){
-        do{
-            usleep(500000);
-        }while(!mapFields[road.at(j+1).y][road.at(j+1).x].available);
-    
         if(j>0){
             mutexFarmers.lock();
             mapFields[road.at(j-1).y][road.at(j-1).x].available = true;
@@ -82,7 +78,9 @@ void Road::moveFarmerToDestination(Farmer *farmer) {
         mapFields[road.at(j).y][road.at(j).x].available = false;
         mutexFarmers.unlock();
         road.at(j).available = false;
-       // refreshRoad();
+        do{
+           usleep(500000);
+        }while(!mapFields[road.at(j+1).y][road.at(j+1).x].available);
     }
     mutexFarmers.lock();
     mapFields[road.back().y][road.back().x].available = true;

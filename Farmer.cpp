@@ -27,37 +27,51 @@ Farmer::Farmer(int x, int y, int ID) {
 }
 
 void Farmer::goFieldWithWheat() {
+    // remove farmer from farm
     mutexConsole.lock();
     mvprintw(this->y_start, this->x_start, " ");
-    //refresh();
     mutexConsole.unlock();
+
+    // set farmer state and run function which will move
     this->state = "goFieldWithWheat";
     roadHomeToFieldWithWheat.moveFarmerToDestination(this);
+
+    // set available field with wheat on true
     mutexFarmers.lock();
     fieldWithWheat.setAvailable(true);
     mutexFarmers.unlock();
+
+    // farmer go to mill, where he will sell grain
     sellGrain();
 }
 
 void Farmer::goFieldWithRye() {
+    // remove farmer from farm
     mutexConsole.lock();
     mvprintw(this->y_start, this->x_start, " ");
-    //refresh();
     mutexConsole.unlock();
+
+    // set farmer state and run function moveFarmer
     this->state = "goFieldWithRye"; 
     roadHomeToFieldWithRye.moveFarmerToDestination(this);
-    sellGrain();
+
+    // set available field with rye on true
     mutexFarmers.lock();
     fieldWithRye.setAvailable(true);
     mutexFarmers.unlock();
+
+    // farmer go to mill
+    sellGrain();
 }
 
 void Farmer::sellGrain() {
+    // remove farmer from field and go to mill
     mutexConsole.lock();
     mvprintw(this->y,this->x," ");
-    //refresh();
     mapFields[this->y][this->x].available = true;
     mutexConsole.unlock();
+
+    // choosing field from which the farmer go
     if(this->state == "goFieldWithRye"){
         roadFieldWithRyeToMill.moveFarmerToDestination(this);
     }else{
@@ -65,21 +79,34 @@ void Farmer::sellGrain() {
     }
     this->state = "sellGrain";
 
+    // if he sell grain, he will return to home
     goToHome();
 }
 
 void Farmer::goToHome() {
+    // remove farmer from mill and go to home
+    mutexConsole.lock();
+    mvprintw(this->y,this->x," ");
+    mapFields[this->y][this->x].available = true;
+    mutexConsole.unlock();
     mutexFarmers.lock();
     mapFields[this->y][this->x].available = true;
     mutexFarmers.unlock();
+
     roadFromMillToHome.moveFarmerToDestination(this);
+    mutexConsole.lock();
+    mvprintw(this->y,this->x," ");
+    mapFields[this->y][this->x].available = true;
+    mutexConsole.unlock();
+
+    // set position farmer on start position
+    this->setPosition(this->y_start, this->x_start);
 }
 
 void Farmer::simulatingLife() {
 
     while(!endProgram) {
         Resting();
-
         mutexFarmers.lock();
         if ((rand() % 2 + 0) == 1 && fieldWithRye.getAvailable()) {
             fieldWithRye.setAvailable(false);
@@ -93,14 +120,13 @@ void Farmer::simulatingLife() {
         else mutexFarmers.unlock();
         mutexConsole.lock();
         mvprintw(40,5,"%d", this->ID);
-        //refresh();
         mutexConsole.unlock();
     }
 }
 
 void Farmer::Resting() {
     setPosition(y_start, x_start);
-    usleep(rand()%400000+300000);
+    usleep(rand()%1000000);
 }
 
 void Farmer::setPosition(int y, int x) {
@@ -108,7 +134,6 @@ void Farmer::setPosition(int y, int x) {
     this->y = y;
     mutexConsole.lock();
     mvprintw(y,x,"%d", this->ID);
-    //refresh();
     mutexConsole.unlock();
 }
 
