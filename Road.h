@@ -18,17 +18,17 @@ enum ID_Road{
 };
 
 class Road {
-    vector<CoordinateField> road;
+    vector<Coordinate> road;
     Coordinate start, end;
     ID_Road ID;
     bool available;
 
 public:
     Road(ID_Road);
-    void createRoad(vector<CoordinateField> tmpRoad);
+    void createRoad(vector<Coordinate> tmpRoad);
     void moveFarmerToDestination(class Farmer* farmer);
     bool isAvailable();
-    void refreshRoad();
+    //void refreshRoad();
     ID_Road getID();
 };
 

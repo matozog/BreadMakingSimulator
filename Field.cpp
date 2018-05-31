@@ -57,7 +57,9 @@ void Field::refreshCrops(){
             mutexConsole.unlock();
         }
     }
-
+    // mutexConsole.lock();
+    // refresh();
+    // mutexConsole.unlock();
 }
 
 bool Field::getAvailable() {

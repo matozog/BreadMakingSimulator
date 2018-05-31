@@ -13,12 +13,13 @@
 using namespace std;
 
 struct CoordinateField{
-    int y, x, stateOfCrop; // only for Field class: 0 - lack, 1 - growing , 2 - ready for harvest
+    int y, x, stateOfCrop, type; // state of Crop only for Field class: 0 - lack, 1 - growing , 2 - ready for harvest
     bool available;
 };
 
 struct Coordinate{
     int y, x;
+    bool available;
 };
 
 class Field {

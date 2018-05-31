@@ -16,7 +16,7 @@ Field fieldWithRye(1);
 
 static string mapFileName = "map";
 int **mapArray;
-CoordinateField **mapFields;
+atomic<CoordinateField**> mapFields;
 int widthMap = 0, heightMap = 0;
 bool endProgram = false;
 int amountOfFarmers = 9;  // max 9
@@ -116,7 +116,9 @@ void drawMap()
                    fieldWithWheat.setArea(j,i);
                    break;
            }
+            mutexConsole.lock();
             refresh();
+            mutexConsole.unlock();
         }
     }
 }
@@ -141,7 +143,7 @@ bool loadMapFromFile()
         mapFields[i] = new CoordinateField[widthMap];
         for(int j=0; j< widthMap; j++) {
             file >> mapArray[i][j];
-            mapFields[i][j] = {i,j,0,true};
+            mapFields[i][j] = {i,j,0,mapArray[i][j],true};
         }
     }
     return true;
