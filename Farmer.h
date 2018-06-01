@@ -5,6 +5,7 @@
 
 #include <thread>
 #include <mutex>
+#include "Mill.h"
 #include "Road.h"
 #include <iostream>
 #include <string>
@@ -17,8 +18,9 @@ using namespace std;
 class Farmer {
 
 private:
+    static const int MAX_LOAD_TRAILER = 5;
     static Road roadHomeToFieldWithRye, roadHomeToFieldWithWheat, roadFieldWithWheatToMill, roadFieldWithRyeToMill, roadFromMillToHome;
-    int x, y, x_start, y_start, ID;
+    int x, y, x_start, y_start, ID, loadTrailer = 0;
     string state = "rest";
 
 public:
@@ -39,7 +41,7 @@ public:
     void clearPosition(int y, int x);
     void goFieldWithWheat();
     void goFieldWithRye();
-    void pickUpGrain();
+    void collectCrops();
     void sellGrain();
     void goToHome();
     void Resting();

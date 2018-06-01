@@ -10,7 +10,6 @@ Road::Road(ID_Road ID){
     this->ID = ID;
     mutexConsole.lock();
     mvprintw(40,5,"%d", this->ID);
-    //refresh();
     mutexConsole.unlock();
     vector <Coordinate> tmp_road;
     switch(this->ID)

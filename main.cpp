@@ -1,6 +1,8 @@
 #include "Farmer.h"
 #include <fstream>
 #include <atomic>
+#include <unistd.h>
+#include <iostream>
 
 using namespace std;
 
@@ -13,6 +15,7 @@ void drawMap();
 
 Field fieldWithWheat(0);
 Field fieldWithRye(1);
+Mill mill;
 
 static string mapFileName = "map";
 int **mapArray;
@@ -33,7 +36,7 @@ int main(int argc, char **argv ) {
 
     thread *farmerThreads = new thread[amountOfFarmers];
     vector<Farmer> farmers;
-    thread natureFieldWithWheat, natureFieldWithRye;
+    thread natureFieldWithWheat, natureFieldWithRye, millThread;
 
     // load map from file
 
@@ -42,8 +45,11 @@ int main(int argc, char **argv ) {
     else cout<< "Brak pliku";
 
     // run nature threads on the fields
-    natureFieldWithRye = thread(&Field::natureThread, fieldWithRye);
-    natureFieldWithWheat = thread(&Field::natureThread, fieldWithWheat);
+    natureFieldWithRye = thread(&Field::natureThread, &fieldWithRye);
+    natureFieldWithWheat = thread(&Field::natureThread, &fieldWithWheat);
+
+    // run mill thread
+    millThread = thread(&Mill::makeFlour, &mill);
 
     // create farmers
     int x_farmer = 4, y_farmer = 31;
@@ -110,10 +116,10 @@ void drawMap()
                    mutexConsole.unlock();
                    break;
                case 4:
-                   fieldWithRye.setArea(j,i);
+                   fieldWithRye.setArea(j,i,4);
                    break;
                case 5:
-                   fieldWithWheat.setArea(j,i);
+                   fieldWithWheat.setArea(j,i,4);
                    break;
            }
             mutexConsole.lock();

@@ -6,6 +6,7 @@ extern Field fieldWithWheat;
 extern Field fieldWithRye;
 extern mutex mutexFarmers;
 extern CoordinateField **mapFields;
+extern Mill mill;
 
 Road Farmer::roadHomeToFieldWithWheat(HomeToFWheat);
 Road Farmer::roadHomeToFieldWithRye(HomeToFRye);
@@ -36,6 +37,8 @@ void Farmer::goFieldWithWheat() {
     this->state = "goFieldWithWheat";
     roadHomeToFieldWithWheat.moveFarmerToDestination(this);
 
+    collectCrops();
+
     // set available field with wheat on true
     mutexFarmers.lock();
     fieldWithWheat.setAvailable(true);
@@ -54,6 +57,8 @@ void Farmer::goFieldWithRye() {
     // set farmer state and run function moveFarmer
     this->state = "goFieldWithRye"; 
     roadHomeToFieldWithRye.moveFarmerToDestination(this);
+
+    collectCrops();
 
     // set available field with rye on true
     mutexFarmers.lock();
@@ -77,6 +82,11 @@ void Farmer::sellGrain() {
     }else{
         roadFieldWithWheatToMill.moveFarmerToDestination(this);
     }
+
+    // mill taking grains from farmer
+    mill.takeGrainsFromFarmer(this->state);
+    this->loadTrailer = 0;
+
     this->state = "sellGrain";
 
     // if he sell grain, he will return to home
@@ -101,6 +111,15 @@ void Farmer::goToHome() {
 
     // set position farmer on start position
     this->setPosition(this->y_start, this->x_start);
+    this->state = "rest";
+}
+
+void Farmer::collectCrops(){
+    if(this->state == "goFieldWithRye"){
+        this->loadTrailer = fieldWithRye.harvest(this);
+    }else{
+        this->loadTrailer = fieldWithWheat.harvest(this);
+    }
 }
 
 void Farmer::simulatingLife() {

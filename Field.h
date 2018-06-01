@@ -27,20 +27,22 @@ class Field {
     vector<CoordinateField> area;
     int typeOfCrop; // 0 - wheat , 1 - rye
     bool isAvailable = true;
+    int amountOfGrains = 0; // in tons
 
 public:
     Field(int typeOfCorp);
     Field();
 
-    vector<CoordinateField> getArea() const;
-    void setArea(int x, int y);
-    int getTypeOfCrop() const;
+    vector<CoordinateField> getArea();
+    void setArea(int x, int y,int type);
+    int getTypeOfCrop();
     void setTypeOfCrop(int typeOfCrop);
     bool getAvailable();
     void setAvailable(bool available);
     void refreshCrops();
     void closeThread();
 
+    int harvest(class Farmer *farmer);
     void natureThread();
 
 };
