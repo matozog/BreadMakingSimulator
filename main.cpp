@@ -3,6 +3,7 @@
 #include <atomic>
 #include <unistd.h>
 #include <iostream>
+#include <mutex>
 
 using namespace std;
 
@@ -121,6 +122,24 @@ void drawMap()
                case 5:
                    fieldWithWheat.setArea(j,i,4);
                    break;
+                case 6:
+                    move(i,j);
+                    addch(ACS_ULCORNER);
+                   break;
+                case 7:
+                    break;
+                case 8: 
+                    move(i,j);
+                    addch(ACS_URCORNER);
+                    break;
+                case 9:
+                    move(i,j);
+                    addch(ACS_LLCORNER);
+                    break;
+                case 10:
+                    move(i,j);
+                    addch(ACS_LRCORNER);
+                    break;
            }
             mutexConsole.lock();
             refresh();

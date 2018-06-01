@@ -7,6 +7,8 @@ mutex mutexMill;
 Mill::Mill(){
     amountOfRyeGrains = 0;
     amountOfWheatGrains = 0;
+    amountOfWheatFlour = 0;
+    amountOfRyeFlour = 0;
 }
 
 void Mill::takeGrainsFromFarmer(string typeField){
@@ -48,6 +50,10 @@ void Mill::takeGrainsFromFarmer(string typeField){
 }
 
 void Mill::makeFlour(){
+    mutexConsole.lock();
+    mvprintw(11,37,"%s","R flour");
+    mvprintw(8,37,"%s", "W flour");
+    mutexConsole.unlock();
     while(!endProgram){
         usleep(rand()%500000);
         produceRyeFlour();
@@ -57,37 +63,119 @@ void Mill::makeFlour(){
 }
 
 void Mill::produceRyeFlour(){
-    if(this->amountOfRyeGrains >=20){
+    if(this->amountOfRyeGrains >=30){
         mutexMill.lock();
-        this->amountOfRyeGrains -= 20;
+        this->amountOfRyeGrains -= 30;
         refreshTanks();
         mutexMill.unlock();
         mutexConsole.lock();
-        mvprintw(1,39,"%s","rye flour");
+        mvprintw(1,39,"%s","rye flour  ");
         mutexConsole.unlock();
         runProcessLoading();
+        loadRyeFlourIntoWarehouse();
     }
-    mutexConsole.lock();
-    mvprintw(40,80,"%s","produkcja zytniej");
-    mvprintw(41,80,"%d", this->amountOfRyeGrains);
-    mutexConsole.unlock();
 }
 
 void Mill::produceWheatFlour(){
-    if(this->amountOfWheatGrains>=20){
+    if(this->amountOfWheatGrains>=30){
         mutexMill.lock();
-        this->amountOfWheatGrains -= 20;
+        this->amountOfWheatGrains -= 30;
         refreshTanks();
         mutexMill.unlock();
         mutexConsole.lock();
         mvprintw(1,39,"%s","wheat flour");
         mutexConsole.unlock();
         runProcessLoading();
+        loadWheatFlourIntoWarehouse();
     }
-    mutexConsole.lock();
-    mvprintw(40,80,"%s","produkcja pszennej");
-    mvprintw(41,83,"%d", this->amountOfWheatGrains);
-    mutexConsole.unlock();
+}
+
+void Mill::loadWheatFlourIntoWarehouse(){
+    do{
+        if(this->availableWheatFlourWarehouse){
+            mutexMill.lock();
+            this->amountOfWheatFlour+=10;
+            mutexMill.unlock();
+        }
+        if(this->amountOfWheatFlour<100){
+            mutexMill.lock();
+            this->availableWheatFlourWarehouse = true;
+            mutexMill.unlock();
+        }
+    }while(!this->availableWheatFlourWarehouse);
+    mutexMill.lock();
+    if(this->amountOfWheatFlour >= 100) this->availableWheatFlourWarehouse = false;
+    mutexMill.unlock();
+    refreshWarehouse();
+}
+
+void Mill::loadRyeFlourIntoWarehouse(){
+    do{
+        if(this->availableRyeFlourWarehouse){
+            mutexMill.lock();
+            this->amountOfRyeFlour+=10;
+            mutexMill.unlock();
+        }
+        if(this->amountOfRyeFlour<100){
+            mutexMill.lock();
+            this->availableRyeFlourWarehouse = true;
+            mutexMill.unlock();
+        }
+    }while(!this->availableRyeFlourWarehouse);
+    mutexMill.lock();
+    if(this->amountOfRyeFlour >= 100) this->availableRyeFlourWarehouse = false;
+    mutexMill.unlock();
+    refreshWarehouse();
+}
+
+void Mill::refreshWarehouse(){
+    int flourInRyeWarehouse = this->amountOfRyeFlour*20/MAX_FLOUR_IN_WAREHOUSE;
+    int flourInWheatWarehouse = this->amountOfWheatFlour*20/MAX_FLOUR_IN_WAREHOUSE;
+    int tmp_x=0, tmp_y=0;
+    for(int i=0; i<20;i++){
+        mutexConsole.lock();
+        init_pair(6, COLOR_BLACK, COLOR_BLACK);
+        attron(COLOR_PAIR(6));
+        mvprintw(12 + tmp_y, 45 + tmp_x," ");
+        mvprintw(9 + tmp_y, 45 + tmp_x," ");
+        attroff(COLOR_PAIR(6));
+        mutexConsole.unlock();
+        tmp_x ++;
+        if(tmp_x%10 == 0){
+            tmp_x = 0;
+            tmp_y --;
+        }
+    }
+    tmp_x=0;
+    tmp_y=0;
+    for(int i=0; i<flourInRyeWarehouse;i++){
+        mutexConsole.lock();
+        attron(COLOR_PAIR(3));
+        mvprintw(12 + tmp_y, 45 + tmp_x," ");
+        attroff(COLOR_PAIR(3));
+        mutexConsole.unlock();
+        tmp_x ++;
+        if(tmp_x%10 == 0){
+            tmp_x = 0;
+            tmp_y --;
+        }
+    }
+
+    tmp_x=0;
+    tmp_y=0;
+    for(int i=0; i<flourInWheatWarehouse;i++){
+        mutexConsole.lock();
+        init_pair(7, COLOR_WHITE, COLOR_WHITE);
+        attron(COLOR_PAIR(7));
+        mvprintw(9 + tmp_y, 45 + tmp_x," ");
+        attroff(COLOR_PAIR(7));
+        mutexConsole.unlock();
+        tmp_x ++;
+        if(tmp_x%10 == 0){
+            tmp_x = 0;
+            tmp_y --;
+        }
+    }
 }
 
 void Mill::runProcessLoading(){

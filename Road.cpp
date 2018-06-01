@@ -78,7 +78,7 @@ void Road::moveFarmerToDestination(Farmer *farmer) {
         mutexFarmers.unlock();
         road.at(j).available = false;
         do{
-           usleep(500000);
+           usleep(300000);
         }while(!mapFields[road.at(j+1).y][road.at(j+1).x].available);
     }
     mutexFarmers.lock();
