@@ -1,4 +1,5 @@
 #include "Farmer.h"
+#include "Bakery.h"
 #include <fstream>
 #include <atomic>
 #include <unistd.h>
@@ -17,6 +18,7 @@ void drawMap();
 Field fieldWithWheat(0);
 Field fieldWithRye(1);
 Mill mill;
+Bakery bakery;
 
 static string mapFileName = "map";
 int **mapArray;
@@ -37,7 +39,7 @@ int main(int argc, char **argv ) {
 
     thread *farmerThreads = new thread[amountOfFarmers];
     vector<Farmer> farmers;
-    thread natureFieldWithWheat, natureFieldWithRye, millThread;
+    thread natureFieldWithWheat, natureFieldWithRye, millThread, bakeryThread;
 
     // load map from file
 
@@ -48,6 +50,9 @@ int main(int argc, char **argv ) {
     // run nature threads on the fields
     natureFieldWithRye = thread(&Field::natureThread, &fieldWithRye);
     natureFieldWithWheat = thread(&Field::natureThread, &fieldWithWheat);
+    
+    // run bakery thread
+    bakeryThread = thread(&Bakery::simulatingBakeryLife, &bakery);
 
     // run mill thread
     millThread = thread(&Mill::makeFlour, &mill);
@@ -139,6 +144,14 @@ void drawMap()
                 case 10:
                     move(i,j);
                     addch(ACS_LRCORNER);
+                    break;
+                case 11:
+                    init_pair(9, COLOR_WHITE, COLOR_CYAN);
+                    attron(COLOR_PAIR(9));
+                    mutexConsole.lock();
+                    mvprintw(i,j,"%s"," ");
+                    mutexConsole.unlock();
+                    attroff(COLOR_PAIR(9));
                     break;
            }
             mutexConsole.lock();

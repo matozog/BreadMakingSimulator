@@ -32,6 +32,10 @@ public:
     void runProcessLoading();
     void loadRyeFlourIntoWarehouse();
     void loadWheatFlourIntoWarehouse();
+    int getAmountOfRyeFlour(){ return amountOfRyeFlour;}
+    int getAmountOfWheatFlour(){ return amountOfWheatFlour;}
+    void sellRyeFlour(int weight);
+    void sellWheatFlour(int weight);
 };
 
 

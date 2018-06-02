@@ -6,6 +6,7 @@
 #include "Field.h"
 #include <vector>
 #include <mutex>
+#include <string>
 
 using namespace std;
 
@@ -14,7 +15,13 @@ enum ID_Road{
     HomeToFRye,
     FWheatToMill,
     FRyeToMill,
-    MillToHome
+    MillToHome,
+    BakeryToMill,
+    MillToBakery,
+    ShopToMill,
+    MillToShop,
+    ShopToBakery,
+    BakeryToShop
 };
 
 class Road {
@@ -28,7 +35,7 @@ public:
     void createRoad(vector<Coordinate> tmpRoad);
     void moveFarmerToDestination(class Farmer* farmer);
     bool isAvailable();
-    //void refreshRoad();
+    void moveTruckToDestination(class Truck* truck);
     ID_Road getID();
 };
 

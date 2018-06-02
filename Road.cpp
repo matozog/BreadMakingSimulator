@@ -1,5 +1,6 @@
 #include "Road.h"
 #include "Farmer.h"
+#include "Truck.h"
 
 extern mutex mutexConsole;
 extern CoordinateField **mapFields;
@@ -51,8 +52,57 @@ Road::Road(ID_Road ID){
             tmp_road.push_back({31, 13, true});
             break;
         }
+        case BakeryToMill:{
+            tmp_road.push_back({5,78,true});
+            tmp_road.push_back({5,59,true});
+            tmp_road.push_back({10,59,true});
+            tmp_road.push_back({10,56,true});
+            break;
+        }
+        case MillToBakery:{
+            tmp_road.push_back({10,56,true});
+            tmp_road.push_back({10,61,true});
+            tmp_road.push_back({6,61,true});
+            tmp_road.push_back({6,78,true});
+            tmp_road.push_back({5,78,true});
+            break;
+        }
+        case ShopToMill:{
+            tmp_road.push_back({21,64,true});
+            break;
+        }
+        case MillToShop:{
+
+            break;
+        }
+        case ShopToBakery:{
+
+            break;
+        }
+        case BakeryToShop:{
+
+            break;
+        }
    }
    createRoad(tmp_road);
+}
+
+void Road::moveTruckToDestination(Truck *truck){
+    mutexConsole.lock();
+    mvprintw(truck->getYStart(), truck->getXStart(), " ");
+    mutexConsole.unlock();
+    for(int j=0; j<road.size()-1; j++){
+        if(j>0){
+            mutexConsole.lock();
+            mvprintw(road.at(j-1).y, road.at(j-1).x, " ");
+            mutexConsole.unlock();
+        }
+        truck->setPosition(road.at(j).y, road.at(j).x);
+        usleep(200000);
+    }
+    mutexConsole.lock();
+    mvprintw(road[road.size()-1].y,road[road.size()-1].x ," ");
+    mutexConsole.unlock();
 }
 
 void Road::moveFarmerToDestination(Farmer *farmer) {
@@ -126,31 +176,6 @@ void Road::createRoad(vector<Coordinate> tmpRoad){
         }
     }
 }
-
-/*void Road::refreshRoad(){
-    /*for(int i=0; i<road.size();i++){
-        if(road.at(i).available){
-            mutexConsole.lock();
-            mvprintw(road.at(i).y, road.at(i).x, " ");
-            //refresh();
-            mutexConsole.unlock();
-        }
-    }
-    mutexFarmers.lock();
-    for(int i=0; i<heightMap; i++){
-        for(int j=0; i<widthMap; j++){
-            if(mapFields[i][j].type == 7){
-                if(mapFields[i][j].available){
-                mutexConsole.lock();
-                mvprintw(mapFields[i][j].y, mapFields[i][j].x, " ");
-                //refresh();
-                mutexConsole.unlock();
-                }
-            }
-        }
-    }
-    mutexFarmers.unlock();
-}*/
 
 bool Road::isAvailable() {
     return this->available;

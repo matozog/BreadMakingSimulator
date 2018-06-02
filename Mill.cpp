@@ -128,6 +128,20 @@ void Mill::loadRyeFlourIntoWarehouse(){
     refreshWarehouse();
 }
 
+void Mill::sellRyeFlour(int weight){
+    mutexMill.lock();
+    amountOfRyeFlour -= weight;
+    mutexMill.unlock();
+    refreshWarehouse();
+}
+
+void Mill::sellWheatFlour(int weight){
+    mutexMill.lock();
+    amountOfWheatFlour -= weight;
+    mutexMill.unlock();
+    refreshWarehouse();
+}
+
 void Mill::refreshWarehouse(){
     int flourInRyeWarehouse = this->amountOfRyeFlour*20/MAX_FLOUR_IN_WAREHOUSE;
     int flourInWheatWarehouse = this->amountOfWheatFlour*20/MAX_FLOUR_IN_WAREHOUSE;
@@ -206,7 +220,6 @@ void Mill::runProcessLoading(){
         mutexConsole.unlock();
         tmp_x+=2;
     }
-
 }
 
 void Mill::refreshTanks(){
