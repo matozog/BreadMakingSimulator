@@ -16,12 +16,14 @@ enum ID_Road{
     FWheatToMill,
     FRyeToMill,
     MillToHome,
-    BakeryToMill,
+    BakeryToMillGate,
     MillToBakery,
-    ShopToMill,
+    ShopToMillGate,
     MillToShop,
     ShopToBakery,
-    BakeryToShop
+    BakeryToShop,
+    BakeryTruckFromGateToMill,
+    ShopTruckFromGateToMill
 };
 
 class Road {

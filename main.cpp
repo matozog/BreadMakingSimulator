@@ -159,6 +159,14 @@ void drawMap()
                     mutexConsole.unlock();
                     attroff(COLOR_PAIR(9));
                     break;
+                case 12:
+                    init_pair(11, COLOR_WHITE, COLOR_MAGENTA);
+                    attron(COLOR_PAIR(11));
+                    mutexConsole.lock();
+                    mvprintw(i,j,"%s"," ");
+                    mutexConsole.unlock();
+                    attroff(COLOR_PAIR(11));
+                    break;
            }
             mutexConsole.lock();
             refresh();

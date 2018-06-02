@@ -9,13 +9,14 @@ using namespace std;
 
 class Shop{
 
-static const int MAX_AMOUNT_WHEAT_FLOUR = 54;
-static const int MAX_AMOUNT_RYE_FLOUR = 54;
-static const int MAX_AMOUNT_RYE_BREAD = 40;
-static const int MAX_AMOUNT_RYE_WHEAT_BREAD = 40;
+static const int MAX_AMOUNT_WHEAT_FLOUR = 55;
+static const int MAX_AMOUNT_RYE_FLOUR = 55;
+static const int MAX_AMOUNT_RYE_BREAD = 55;
+static const int MAX_AMOUNT_RYE_WHEAT_BREAD = 55;
 ShopTruck deliveryShopTruck;
 thread deliveryShopTruckThread;
-bool neededFlour = true, neededBread = true;
+string whatIsNeeded = "flour";
+int amountOfRyeFlour = 0, amountOfWheatFlour = 0, amountOfRyeBread = 0, amountOfWheatRyeBread = 0;
 
 public:
     Shop();
@@ -23,8 +24,9 @@ public:
     void refreshWarehouseWithFlour();
     void refreshWarehouseWithBread();
     void simulatingShopLife();
-    bool isNeededFlour(){return neededFlour;}
-    bool isNeededBread(){return neededBread;}
+    string isNeeded(){return whatIsNeeded;}
+    void loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBrad);
+    void loadFlourToStore(int amountOfWheatFlour, int amountOfRyeFlour);
 
 };
 

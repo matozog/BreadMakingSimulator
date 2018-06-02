@@ -4,16 +4,19 @@
 
 extern bool endProgram;
 extern mutex mutexConsole;
+extern mutex mutexMill;
 extern Bakery bakery;
 extern Mill mill;
 extern mutex mutexMill;
 
-Road Truck::roadFromBakeryToMill(BakeryToMill);
+Road Truck::roadFromBakeryToMillGate(BakeryToMillGate);
 Road Truck::roadFromMillToBakery(MillToBakery);
-/*Road Truck::roadFromShopToMill(ShopToMill);
+Road Truck::roadFromShopToMillGate(ShopToMillGate);
 Road Truck::roadFromMillToShop(MillToShop);
 Road Truck::roadFromShopToBakery(ShopToBakery);
-Road Truck::roadFromBakeryToShop(BakeryToShop);*/
+Road Truck::roadFromBakeryToShop(BakeryToShop);
+Road Truck::roadBakeryFromGateToMill(BakeryTruckFromGateToMill);
+Road Truck::roadShopFromGateToMill(ShopTruckFromGateToMill);
 
 
 Truck::Truck(int y, int x, string ID){
@@ -44,24 +47,24 @@ void Truck::setPosition(int y, int x){
     }
 }
 
-void Truck::takeFlourFromMill(string type){
+void Truck::takeFlourFromMill(string type, int weight){
     if(type == "rye"){
         do{
             usleep(10000);
-        }while(mill.getAmountOfRyeFlour()<10);
+        }while(mill.getAmountOfRyeFlour()<weight);
         usleep(rand()%500000+2000000);
-        if(mill.getAmountOfRyeFlour()>=10){
-            mill.sellRyeFlour(MAX_LOAD_TRUCK);
+        if(mill.getAmountOfRyeFlour()>=weight){
+            mill.sellRyeFlour(weight);
         }
     }
     else{
         do{
             usleep(10000);
-        }while((mill.getAmountOfWheatFlour()<10) && (mill.getAmountOfRyeFlour() <10));
+        }while((mill.getAmountOfWheatFlour()<weight/2) && (mill.getAmountOfRyeFlour() <weight/2));
         usleep(rand()%500000+2000000);
-        if(mill.getAmountOfWheatFlour()>=10 && mill.getAmountOfRyeFlour() >= 10){
-            mill.sellWheatFlour(MAX_LOAD_TRUCK/2);
-            mill.sellRyeFlour(MAX_LOAD_TRUCK/2);
+        if(mill.getAmountOfWheatFlour()>=weight/2 && mill.getAmountOfRyeFlour() >= weight/2){
+            mill.sellWheatFlour(weight/2);
+            mill.sellRyeFlour(weight/2);
         }
     }
     usleep(rand()%500000 + 100000);
@@ -70,14 +73,40 @@ void Truck::takeFlourFromMill(string type){
 void Truck::simulatingLife(){
     while(!endProgram){
         if(bakery.isNeededRyeFlour()){
-            roadFromBakeryToMill.moveTruckToDestination(this);
-            takeFlourFromMill("rye");
+            roadFromBakeryToMillGate.moveTruckToDestination(this);
+            usleep(50000);
+            do{
+                usleep(1000);
+            }while(!mill.getAvailableMillWarehouses());
+            if(mill.getAvailableMillWarehouses()){
+                mutexMill.lock();
+                mill.setAvailableMillWarehouses(false);
+                mutexMill.unlock();
+            }
+            roadBakeryFromGateToMill.moveTruckToDestination(this);
+            takeFlourFromMill("rye", MAX_LOAD_TRUCK);
+            mutexMill.lock();
+            mill.setAvailableMillWarehouses(true);
+            mutexMill.unlock();
             roadFromMillToBakery.moveTruckToDestination(this);
             bakery.loadRyeFlour(MAX_LOAD_TRUCK);
         }
         if(bakery.isNeededWheatRyeFlour()){
-            roadFromBakeryToMill.moveTruckToDestination(this);
-            takeFlourFromMill("wheat-rye");
+            roadFromBakeryToMillGate.moveTruckToDestination(this);
+            usleep(50000);
+            do{
+                usleep(1000);
+            }while(!mill.getAvailableMillWarehouses());
+            if(mill.getAvailableMillWarehouses()){
+                mutexMill.lock();
+                mill.setAvailableMillWarehouses(false);
+                mutexMill.unlock();
+            }
+            roadBakeryFromGateToMill.moveTruckToDestination(this);
+            takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK);
+            mutexMill.lock();
+            mill.setAvailableMillWarehouses(true);
+            mutexMill.unlock();
             roadFromMillToBakery.moveTruckToDestination(this);
             bakery.loadWheatFlour(MAX_LOAD_TRUCK/2);
             bakery.loadRyeFlour(MAX_LOAD_TRUCK/2);

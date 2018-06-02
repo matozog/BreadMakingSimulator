@@ -33,6 +33,10 @@ public:
     void loadRyeBreadIntoStore();
     void loadRyeWheatBreadIntoStore();
     void refreshStore();
+    int getAmountOfRyeBread(){return amountOfRyeBread;}
+    int getAmountOfWheatRyeBread(){return amountOfRyeWheatBread;}
+    void sellRyeBread(int weight);
+    void sellWheatRyeBread(int weight);
 
 };
 

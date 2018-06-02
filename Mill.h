@@ -1,6 +1,5 @@
 #ifndef PROGRAM_MILL_H
 #define PROGRAM_MILL_H
-#pragma once
 
 #include <iostream>
 #include <mutex>
@@ -19,6 +18,7 @@ int amountOfWheatGrains=0;
 int amountOfRyeFlour=0, amountOfWheatFlour=0;
 bool availableRyeTank = true, availableRyeFlourWarehouse = true;
 bool availableWheatTank = true, availableWheatFlourWarehouse = true;
+bool availableMillWarehousese = true;
 
 public:
 
@@ -36,6 +36,8 @@ public:
     int getAmountOfWheatFlour(){ return amountOfWheatFlour;}
     void sellRyeFlour(int weight);
     void sellWheatFlour(int weight);
+    bool getAvailableMillWarehouses(){return availableMillWarehousese;}
+    void setAvailableMillWarehouses(bool availableWarehouses){this->availableMillWarehousese = availableWarehouses;}
 };
 
 

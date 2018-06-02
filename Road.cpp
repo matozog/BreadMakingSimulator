@@ -52,11 +52,11 @@ Road::Road(ID_Road ID){
             tmp_road.push_back({31, 13, true});
             break;
         }
-        case BakeryToMill:{
+        case BakeryToMillGate:{
             tmp_road.push_back({5,78,true});
             tmp_road.push_back({5,59,true});
-            tmp_road.push_back({10,59,true});
-            tmp_road.push_back({10,56,true});
+            tmp_road.push_back({7,59,true});
+
             break;
         }
         case MillToBakery:{
@@ -67,20 +67,50 @@ Road::Road(ID_Road ID){
             tmp_road.push_back({5,78,true});
             break;
         }
-        case ShopToMill:{
-            tmp_road.push_back({21,64,true});
+        case ShopToMillGate:{
+            tmp_road.push_back({22,65,true});
+            tmp_road.push_back({20,65,true});
+            tmp_road.push_back({20,59,true});
+            tmp_road.push_back({13,59,true});
             break;
         }
         case MillToShop:{
-
+            tmp_road.push_back({10,56,true});
+            tmp_road.push_back({10,58,true});
+            tmp_road.push_back({21,58,true});
+            tmp_road.push_back({21,65,true});
+            tmp_road.push_back({22,65,true});
             break;
         }
         case ShopToBakery:{
-
+            tmp_road.push_back({22,65,true});
+            tmp_road.push_back({21,65,true});
+            tmp_road.push_back({21,72,true});
+            tmp_road.push_back({15,72,true});
+            tmp_road.push_back({15,79,true});
+            tmp_road.push_back({9,79,true});
             break;
         }
         case BakeryToShop:{
-
+            tmp_road.push_back({9,79,true});
+            tmp_road.push_back({9,77,true});
+            tmp_road.push_back({15,77,true});
+            tmp_road.push_back({15,70,true});
+            tmp_road.push_back({20,70,true});
+            tmp_road.push_back({20,65,true});
+            tmp_road.push_back({22,65,true});
+            break;
+        }
+        case ShopTruckFromGateToMill:{
+            tmp_road.push_back({14,59,true});
+            tmp_road.push_back({10,59,true});
+            tmp_road.push_back({10,56,true});
+            break;
+        }
+        case BakeryTruckFromGateToMill:{
+            tmp_road.push_back({6,59,true});
+            tmp_road.push_back({10,59,true});
+            tmp_road.push_back({10,56,true});
             break;
         }
    }
@@ -89,16 +119,22 @@ Road::Road(ID_Road ID){
 
 void Road::moveTruckToDestination(Truck *truck){
     mutexConsole.lock();
-    mvprintw(truck->getYStart(), truck->getXStart(), " ");
+    mvprintw(truck->getY(), truck->getX(), " ");
     mutexConsole.unlock();
     for(int j=0; j<road.size()-1; j++){
-        if(j>0){
-            mutexConsole.lock();
-            mvprintw(road.at(j-1).y, road.at(j-1).x, " ");
-            mutexConsole.unlock();
-        }
-        truck->setPosition(road.at(j).y, road.at(j).x);
-        usleep(200000);
+        do{
+            if(mapFields[road.at(j).y][road.at(j).x].available == true){
+                if(j>0){
+                    mutexConsole.lock();
+                    mvprintw(road.at(j-1).y, road.at(j-1).x, " ");
+                    mutexConsole.unlock();
+                }
+                truck->setPosition(road.at(j).y, road.at(j).x);
+            }
+        }while(mapFields[road.at(j).y][road.at(j).x].available == false);
+        do{
+           usleep(200000);
+        }while(!mapFields[road.at(j+1).y][road.at(j+1).x].available);
     }
     mutexConsole.lock();
     mvprintw(road[road.size()-1].y,road[road.size()-1].x ," ");

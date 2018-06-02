@@ -32,6 +32,7 @@ void Bakery::simulatingBakeryLife(){
         mutexBakery.unlock();
         usleep(5000000);
     }
+    this->deliveryTruckThread.join();
 }
 
 void Bakery::produceRyeBread(){
@@ -95,6 +96,20 @@ void Bakery::loadRyeWheatBreadIntoStore(){
     }while(!this->availableWheatRyeBreadStore);
     mutexBakery.lock();
     if(this->amountOfRyeWheatBread >= 40) this->availableWheatRyeBreadStore = false;
+    mutexBakery.unlock();
+    refreshStore();
+}
+
+void Bakery::sellRyeBread(int weight){
+    mutexBakery.lock();
+    amountOfRyeBread -= weight;
+    mutexBakery.unlock();
+    refreshStore();
+}
+
+void Bakery::sellWheatRyeBread(int weight){
+    mutexBakery.lock();
+    amountOfRyeWheatBread -= weight;
     mutexBakery.unlock();
     refreshStore();
 }
