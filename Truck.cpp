@@ -26,7 +26,7 @@ Truck::Truck(int y, int x, string ID){
 }
 
 void Truck::setPosition(int y, int x){
-    if(ID == "bakeryTruck"){
+    if(this->ID == "bakeryTruck"){
         mutexConsole.lock();
         init_pair(8, COLOR_BLACK, COLOR_RED);
         attron(COLOR_PAIR(8));
@@ -34,8 +34,13 @@ void Truck::setPosition(int y, int x){
         attroff(COLOR_PAIR(8));
         mutexConsole.unlock();
     }
-    else{
-
+    else if(this->ID == "shopTruck"){
+        mutexConsole.lock();
+        init_pair(10, COLOR_BLACK, COLOR_BLUE);
+        attron(COLOR_PAIR(10));
+        mvprintw(y,x," ");
+        attroff(COLOR_PAIR(10));
+        mutexConsole.unlock();
     }
 }
 
@@ -44,6 +49,7 @@ void Truck::takeFlourFromMill(string type){
         do{
             usleep(10000);
         }while(mill.getAmountOfRyeFlour()<10);
+        usleep(rand()%500000+2000000);
         if(mill.getAmountOfRyeFlour()>=10){
             mill.sellRyeFlour(MAX_LOAD_TRUCK);
         }
@@ -51,9 +57,11 @@ void Truck::takeFlourFromMill(string type){
     else{
         do{
             usleep(10000);
-        }while(mill.getAmountOfWheatFlour()<10);
-        if(mill.getAmountOfWheatFlour()>=10){
-            mill.sellWheatFlour(MAX_LOAD_TRUCK);
+        }while((mill.getAmountOfWheatFlour()<10) && (mill.getAmountOfRyeFlour() <10));
+        usleep(rand()%500000+2000000);
+        if(mill.getAmountOfWheatFlour()>=10 && mill.getAmountOfRyeFlour() >= 10){
+            mill.sellWheatFlour(MAX_LOAD_TRUCK/2);
+            mill.sellRyeFlour(MAX_LOAD_TRUCK/2);
         }
     }
     usleep(rand()%500000 + 100000);
@@ -67,11 +75,12 @@ void Truck::simulatingLife(){
             roadFromMillToBakery.moveTruckToDestination(this);
             bakery.loadRyeFlour(MAX_LOAD_TRUCK);
         }
-        if(bakery.isNeededWheatFlour()){
+        if(bakery.isNeededWheatRyeFlour()){
             roadFromBakeryToMill.moveTruckToDestination(this);
-            takeFlourFromMill("wheat");
+            takeFlourFromMill("wheat-rye");
             roadFromMillToBakery.moveTruckToDestination(this);
-            bakery.loadWheatFlour(MAX_LOAD_TRUCK);
+            bakery.loadWheatFlour(MAX_LOAD_TRUCK/2);
+            bakery.loadRyeFlour(MAX_LOAD_TRUCK/2);
         }
         usleep(rand()%3000000 + 1000000);
     }

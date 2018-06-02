@@ -7,8 +7,11 @@ using namespace std;
 class ShopTruck : public Truck{
 
 public:
+    ShopTruck();
+    ShopTruck(int y, int x, string ID);
     bool checkAmountOfWheatBread();
     bool checkAmountOfRyeBread();
+    void simulatingLife();
 
 };
 

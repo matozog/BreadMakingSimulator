@@ -1,5 +1,6 @@
 #include "Farmer.h"
 #include "Bakery.h"
+#include "Shop.h"
 #include <fstream>
 #include <atomic>
 #include <unistd.h>
@@ -19,6 +20,7 @@ Field fieldWithWheat(0);
 Field fieldWithRye(1);
 Mill mill;
 Bakery bakery;
+Shop shop;
 
 static string mapFileName = "map";
 int **mapArray;
@@ -40,6 +42,7 @@ int main(int argc, char **argv ) {
     thread *farmerThreads = new thread[amountOfFarmers];
     vector<Farmer> farmers;
     thread natureFieldWithWheat, natureFieldWithRye, millThread, bakeryThread;
+    thread shopThread;
 
     // load map from file
 
@@ -56,6 +59,9 @@ int main(int argc, char **argv ) {
 
     // run mill thread
     millThread = thread(&Mill::makeFlour, &mill);
+
+    //run shop thread
+    shopThread = thread(&Shop::simulatingShopLife, &shop);
 
     // create farmers
     int x_farmer = 4, y_farmer = 31;

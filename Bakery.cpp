@@ -4,8 +4,6 @@ extern bool endProgram;
 extern mutex mutexConsole;
 mutex mutexBakery;
 
-//Truck Bakery::deliveryTruck(5,78, "bakeryTruck");
-
 Bakery::Bakery(){
 
 }
@@ -28,9 +26,9 @@ void Bakery::simulatingBakeryLife(){
         }
         else neededRyeFlour = false;
         if(amountOfWheatFlour <= amountOfRyeFlour){
-            neededWheatFlour = true;
+            neededWheatRyeFlour = true;
         }
-        else neededWheatFlour = false;
+        else neededWheatRyeFlour = false;
         mutexBakery.unlock();
         usleep(5000000);
     }
@@ -230,6 +228,6 @@ bool Bakery::isNeededRyeFlour(){
     return neededRyeFlour;
 }
 
-bool Bakery::isNeededWheatFlour(){
-    return neededWheatFlour;
+bool Bakery::isNeededWheatRyeFlour(){
+    return neededWheatRyeFlour;
 }

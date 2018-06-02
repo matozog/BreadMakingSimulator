@@ -10,11 +10,13 @@ using namespace std;
 
 class Truck{
 
-static const int MAX_LOAD_TRUCK = 10;
+static const int MAX_LOAD_TRUCK = 20;
 static Road roadFromBakeryToMill, roadFromMillToBakery, roadFromShopToMill, roadFromMillToShop;
 static Road roadFromShopToBakery, roadFromBakeryToShop;
-string ID;
-int y,x, x_start, y_start;
+
+protected:
+    string ID;
+    int y,x, x_start, y_start;
 
 public:
     Truck(){};
