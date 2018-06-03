@@ -24,7 +24,7 @@ Shop shop;
 
 static string mapFileName = "map";
 int **mapArray;
-atomic<CoordinateField**> mapFields;
+CoordinateField** mapFields;
 int widthMap = 0, heightMap = 0;
 bool endProgram = false;
 int amountOfFarmers = 9;  // max 9
@@ -36,6 +36,16 @@ int main(int argc, char **argv ) {
     nodelay(stdscr,TRUE);
     start_color();
     curs_set(0);
+
+    // initialize color
+    init_pair(1, COLOR_WHITE, COLOR_GREEN);
+    init_pair(2, COLOR_WHITE, COLOR_MAGENTA);
+    init_pair(3, COLOR_WHITE, COLOR_YELLOW);
+    init_pair(4, COLOR_WHITE, COLOR_BLACK);
+    init_pair(5, COLOR_WHITE, COLOR_RED);
+    init_pair(6, COLOR_WHITE, COLOR_BLUE);
+    init_pair(7, COLOR_WHITE, COLOR_WHITE);
+    init_pair(8, COLOR_WHITE, COLOR_CYAN);  
 
     // declare threads and objects
 
@@ -107,7 +117,6 @@ void drawMap()
            switch(mapArray[i][j])
            {
                case 0:
-                   init_pair(1, COLOR_RED, COLOR_GREEN);
                    attron(COLOR_PAIR(1));
                    mutexConsole.lock();
                    mvprintw(i,j,"%s"," ");
@@ -152,20 +161,18 @@ void drawMap()
                     addch(ACS_LRCORNER);
                     break;
                 case 11:
-                    init_pair(9, COLOR_WHITE, COLOR_CYAN);
-                    attron(COLOR_PAIR(9));
                     mutexConsole.lock();
+                    attron(COLOR_PAIR(8));
                     mvprintw(i,j,"%s"," ");
-                    mutexConsole.unlock();
                     attroff(COLOR_PAIR(9));
+                    mutexConsole.unlock();
                     break;
                 case 12:
-                    init_pair(11, COLOR_WHITE, COLOR_MAGENTA);
-                    attron(COLOR_PAIR(11));
                     mutexConsole.lock();
+                    attron(COLOR_PAIR(2));
                     mvprintw(i,j,"%s"," ");
-                    mutexConsole.unlock();
                     attroff(COLOR_PAIR(11));
+                    mutexConsole.unlock();
                     break;
            }
             mutexConsole.lock();

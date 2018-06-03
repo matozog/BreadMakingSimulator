@@ -1,8 +1,6 @@
 #ifndef PROGRAM_ROAD_H
 #define PROGRAM_ROAD_H
 
-#pragma once
-
 #include "Field.h"
 #include <vector>
 #include <mutex>
@@ -39,6 +37,8 @@ public:
     bool isAvailable();
     void moveTruckToDestination(class Truck* truck);
     ID_Road getID();
+    bool availableNextField(Coordinate nextField);
+    vector<Coordinate> getRoad(){return road;}
 };
 
 #endif //PROGRAM_ROAD_H

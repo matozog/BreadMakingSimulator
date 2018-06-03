@@ -2,8 +2,6 @@
 #ifndef PROGRAM_FIELD_H
 #define PROGRAM_FIELD_H
 
-#pragma once
-
 #include <vector>
 #include <atomic>
 #include <mutex>
@@ -42,6 +40,7 @@ public:
     void refreshCrops();
     void closeThread();
 
+    bool isReadyToHarvest();
     int harvest(class Farmer *farmer);
     void natureThread();
 

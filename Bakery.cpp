@@ -41,9 +41,9 @@ void Bakery::produceRyeBread(){
     refreshWarehousesWithFlour();
     mutexBakery.unlock();
     mutexConsole.lock();
-    attron(COLOR_PAIR(9));
+    attron(COLOR_PAIR(8));
     mvprintw(2,93,"%s","   rye   ");
-    attroff(COLOR_PAIR(9));
+    attroff(COLOR_PAIR(8));
     mutexConsole.unlock();
     runProcessBakeLoading();
 }
@@ -55,9 +55,9 @@ void Bakery::produceWheatRyeBread(){
     refreshWarehousesWithFlour();
     mutexBakery.unlock();
     mutexConsole.lock();
-    attron(COLOR_PAIR(9));
+    attron(COLOR_PAIR(8));
     mvprintw(2,93,"%s","wheat-rye");
-    attroff(COLOR_PAIR(9));
+    attroff(COLOR_PAIR(8));
     mutexConsole.unlock();
     runProcessBakeLoading();
 }
@@ -120,10 +120,10 @@ void Bakery::refreshStore(){
     int tmp_x=0;
     for(int i=0; i<10;i++){
         mutexConsole.lock();
-        attron(COLOR_PAIR(6));
+        attron(COLOR_PAIR(4));
         mvprintw(6, 103 + tmp_x," ");
         mvprintw(3, 103 + tmp_x," ");
-        attroff(COLOR_PAIR(6));
+        attroff(COLOR_PAIR(4));
         mutexConsole.unlock();
         tmp_x ++;
     }
@@ -153,7 +153,6 @@ void Bakery::runProcessBakeLoading(){
     for(int i=0; i<5; i++){
         usleep(rand()%700000 + 500000);
         mutexConsole.lock();
-        init_pair(5, COLOR_BLACK, COLOR_RED);
         attron(COLOR_PAIR(5));
         mvprintw(8+tmp_y,95," ");
         mvprintw(8+tmp_y,96," ");
@@ -196,10 +195,10 @@ void Bakery::refreshWarehousesWithFlour(){
     int tmp_x=0, tmp_y=0;
     for(int i=0; i<18;i++){
         mutexConsole.lock();
-        attron(COLOR_PAIR(6));
+        attron(COLOR_PAIR(4));
         mvprintw(8 + tmp_y, 82 + tmp_x," ");
         mvprintw(8 + tmp_y, 88 + tmp_x," ");
-        attroff(COLOR_PAIR(6));
+        attroff(COLOR_PAIR(4));
         mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
@@ -226,7 +225,6 @@ void Bakery::refreshWarehousesWithFlour(){
     tmp_y=0;
     for(int i=0; i<flourInWheatWarehouse;i++){
         mutexConsole.lock();
-        init_pair(7, COLOR_WHITE, COLOR_WHITE);
         attron(COLOR_PAIR(7));
         mvprintw(8 + tmp_y, 88 + tmp_x," ");
         attroff(COLOR_PAIR(7));

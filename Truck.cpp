@@ -29,20 +29,20 @@ Truck::Truck(int y, int x, string ID){
 }
 
 void Truck::setPosition(int y, int x){
+    this->x = x;
+    this->y=y;
     if(this->ID == "bakeryTruck"){
         mutexConsole.lock();
-        init_pair(8, COLOR_BLACK, COLOR_RED);
-        attron(COLOR_PAIR(8));
+        attron(COLOR_PAIR(5));
         mvprintw(y,x," ");
-        attroff(COLOR_PAIR(8));
+        attroff(COLOR_PAIR(5));
         mutexConsole.unlock();
     }
     else if(this->ID == "shopTruck"){
         mutexConsole.lock();
-        init_pair(10, COLOR_BLACK, COLOR_BLUE);
-        attron(COLOR_PAIR(10));
+        attron(COLOR_PAIR(6));
         mvprintw(y,x," ");
-        attroff(COLOR_PAIR(10));
+        attroff(COLOR_PAIR(6));
         mutexConsole.unlock();
     }
 }

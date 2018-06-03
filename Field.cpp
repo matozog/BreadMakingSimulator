@@ -1,6 +1,9 @@
 
 #include "Field.h"
 #include "Farmer.h"
+#include <condition_variable>
+
+condition_variable cond_harvestFinised;
 
 extern mutex mutexConsole;
 extern mutex mutexFarmers;
@@ -32,38 +35,40 @@ void Field::setArea(int x, int y, int type) {
 }
 
 int Field::harvest(Farmer *farmer){
-
     int grains = 0;
-    do{
-        grains = 0;
+    {
+        unique_lock<mutex> locker_harvest(mutexNature);
+        cond_harvestFinised.wait(locker_harvest, [&]{return isReadyToHarvest();});
         for(int i=0; i<this->area.size(); i++){
             if(this->area.at(i).stateOfCrop == 2){
                 grains++;
-                mutexNature.lock();
                 this->area.at(i).stateOfCrop = 0;
-                mutexNature.unlock();
                 mutexConsole.lock();
-                init_pair(4, COLOR_BLACK, COLOR_BLACK);
                 attron(COLOR_PAIR(4));
                 mvprintw(this->area[i].y,this->area[i].x,"%c", ' ');
                 attroff(COLOR_PAIR(4));
                 mutexConsole.unlock();
+                amountOfGrains --;
             }
             if(grains == 5){
+                cond_harvestFinised.notify_one();
                 return 5;
             }
             usleep(rand()%500000);
         }
-    }while(grains<5);
+    }
+}
+
+bool Field::isReadyToHarvest(){
+    if(this->amountOfGrains>=5) return true;
+    else return false;
 }
 
 void Field::natureThread() {
 
     while(!endProgram){
         usleep(rand()%6000000+4000000);
-        mutexFarmers.lock();
         refreshCrops();
-        mutexFarmers.unlock();
     }
 }
 
@@ -76,8 +81,8 @@ void Field::refreshCrops(){
             mutexNature.lock();
             this->area[i].stateOfCrop ++;
             mutexNature.unlock();
+
             mutexConsole.lock();
-            init_pair(2, COLOR_BLACK, COLOR_MAGENTA);
             attron(COLOR_PAIR(2));
             mvprintw(this->area[i].y,this->area[i].x,"%c", '^');
             attroff(COLOR_PAIR(2));
@@ -87,17 +92,20 @@ void Field::refreshCrops(){
             mutexNature.lock();
             this->area[i].stateOfCrop ++;
             mutexNature.unlock();
-            mutexConsole.lock();
-            init_pair(3, COLOR_BLACK, COLOR_YELLOW);
+            
+            mutexConsole.lock();      
             attron(COLOR_PAIR(3));
             mvprintw(this->area[i].y,this->area[i].x, "%c", '*');
             attroff(COLOR_PAIR(3));
             mutexConsole.unlock();
         }
         if(this->area.at(i).stateOfCrop == 2){
+            mutexNature.lock();
             this->amountOfGrains ++;
+            mutexNature.unlock();
         }
     }
+    cond_harvestFinised.notify_one();
 }
 
 bool Field::getAvailable() {

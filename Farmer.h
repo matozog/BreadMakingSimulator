@@ -1,9 +1,9 @@
 
 #ifndef PROGRAM_FARMER_H
 #define PROGRAM_FARMER_H
-#pragma once
 
 #include <thread>
+#include <condition_variable>
 #include <mutex>
 #include "Mill.h"
 #include "Road.h"
@@ -22,6 +22,7 @@ private:
     static Road roadHomeToFieldWithRye, roadHomeToFieldWithWheat, roadFieldWithWheatToMill, roadFieldWithRyeToMill, roadFromMillToHome;
     int x, y, x_start, y_start, ID, loadTrailer = 0;
     string state = "rest";
+    int color = 0;
 
 public:
     Farmer();
@@ -38,7 +39,6 @@ public:
     void setID(int ID);
 
     void setPosition(int y, int x);
-    void clearPosition(int y, int x);
     void goFieldWithWheat();
     void goFieldWithRye();
     void collectCrops();
@@ -47,6 +47,8 @@ public:
     void Resting();
     void simulatingLife();
     void closeThread();
+    bool isAvailableField();
+    bool startPositionIsAvailable();
 };
 
 #endif //PROGRAM_FARMER_H

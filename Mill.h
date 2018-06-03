@@ -5,6 +5,7 @@
 #include <mutex>
 #include <unistd.h>
 #include <ncurses.h>
+#include <condition_variable>
 #include <atomic>
 
 using namespace std;
@@ -38,6 +39,8 @@ public:
     void sellWheatFlour(int weight);
     bool getAvailableMillWarehouses(){return availableMillWarehousese;}
     void setAvailableMillWarehouses(bool availableWarehouses){this->availableMillWarehousese = availableWarehouses;}
+    bool getAvailableRyeTank();
+    bool getAvailableWheatTank();
 };
 
 
