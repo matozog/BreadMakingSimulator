@@ -27,28 +27,17 @@ void ShopTruck::simulatingLife(){
         if(shop.isNeeded() == "flour"){
             mutexStoreShop.unlock();
             roadFromShopToMillGate.moveTruckToDestination(this);
-            usleep(50000);
-            /*do{
-                usleep(1000);
-            }while(!mill.getAvailableMillWarehouses());
-            if(mill.getAvailableMillWarehouses()){
-                mutexStore.lock();
-                mill.setAvailableMillWarehouses(false);
-                mutexStore.unlock();
-            }*/
             {
                 unique_lock<mutex> locker_MillGate(mutexMillGate);
                 cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});
                 mill.setAvailableMillWarehouses(false);
+                usleep(200000);
                 roadShopFromGateToMill.moveTruckToDestination(this);
-                takeFlourFromMill("rye", MAX_LOAD_TRUCK/2);
-                takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK/2);
+                takeFlourFromMill("rye", MAX_LOAD_TRUCK);
+                takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK);
                 mill.setAvailableMillWarehouses(true);
                 cond_MillGate.notify_one();
             }
-           /* mutexStore.lock();
-            mill.setAvailableMillWarehouses(true);
-            mutexStore.unlock();*/
             usleep(rand()%200000+300000);
             roadFromMillToShop.moveTruckToDestination(this);
             shop.loadFlourToStore(MAX_LOAD_TRUCK/2, MAX_LOAD_TRUCK/2);
@@ -69,33 +58,16 @@ void ShopTruck::simulatingLife(){
 }
 
 void ShopTruck::takeBreadFromBakery(string type, int weight){
-    /*if(type == "rye"){
-        do{
-            usleep(10000);
-        }while(bakery.getAmountOfRyeBread()<weight);
-        
-        if(bakery.getAmountOfRyeBread()>=weight){
-            bakery.sellRyeBread(weight);
-        }
-    }
-    else{
-        do{
-            usleep(10000);
-        }while((bakery.getAmountOfWheatRyeBread()<weight));
-        if(bakery.getAmountOfWheatRyeBread()>=weight){
-            bakery.sellWheatRyeBread(weight);
-        }
-    }
-    usleep(rand()%500000 + 100000);*/
-
     if(type == "rye"){
-        unique_lock<mutex> locker_RyeBreadStore(mutexBreadStore);
-        cond_BreadStores.wait(locker_RyeBreadStore, [&]{return bakery.getAvailableRyeBreadAmount();});
-        bakery.setAvailableRyeBreadAmount(false);
-        bakery.sellRyeBread(weight);
-        if(bakery.getAmountOfRyeBread()>=5){
-            bakery.setAvailableRyeBreadAmount(true);
-            cond_BreadStores.notify_one();
+        {
+            unique_lock<mutex> locker_RyeBreadStore(mutexBreadStore);
+            cond_BreadStores.wait(locker_RyeBreadStore, [&]{return bakery.getAvailableRyeBreadAmount();});
+            bakery.setAvailableRyeBreadAmount(false);
+            bakery.sellRyeBread(weight);
+            if(bakery.getAmountOfRyeBread()>=5){
+                bakery.setAvailableRyeBreadAmount(true);
+                cond_BreadStores.notify_one();
+            }
         }
     }
     else{

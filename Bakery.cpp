@@ -43,7 +43,9 @@ void Bakery::simulatingBakeryLife(){
 void Bakery::produceRyeBread(){
     mutexBakery.lock();
     amountOfRyeFlour-=9;
+    mutexConsole.lock();
     refreshWarehousesWithFlour();
+    mutexConsole.unlock();
     mutexBakery.unlock();
     mutexConsole.lock();
     attron(COLOR_PAIR(8));
@@ -57,7 +59,9 @@ void Bakery::produceWheatRyeBread(){
     mutexBakery.lock();
     amountOfRyeFlour-=6;
     amountOfWheatFlour-=6;
+    mutexConsole.lock();
     refreshWarehousesWithFlour();
+    mutexConsole.unlock();
     mutexBakery.unlock();
     mutexConsole.lock();
     attron(COLOR_PAIR(8));
@@ -68,22 +72,6 @@ void Bakery::produceWheatRyeBread(){
 }
 
 void Bakery::loadRyeBreadIntoStore(){
-    /*do{
-    if(this->availableRyeBreadStore){
-        mutexBakery.lock();
-        this->amountOfRyeBread+=8;
-        mutexBakery.unlock();
-    }
-    if(this->amountOfRyeBread<40){
-        mutexBakery.lock();
-        this->availableRyeBreadStore = true;
-        mutexBakery.unlock();
-    }
-    }while(!this->availableRyeBreadStore);
-    mutexBakery.lock();
-    if(this->amountOfRyeBread >= 40) this->availableRyeBreadStore = false;
-    mutexBakery.unlock();
-    refreshStore();*/
     {
         unique_lock<mutex> locker_RyeBread(mutexBreadStore);
         cond_RyeBreadFull.wait(locker_RyeBread, [&]{return getAvailableRyeBreadStore();});
@@ -97,27 +85,12 @@ void Bakery::loadRyeBreadIntoStore(){
         }
         else this->availableRyeBreadStore = false;
     }
+    mutexConsole.lock();
     refreshStore();
+    mutexConsole.unlock();
 }
 
 void Bakery::loadRyeWheatBreadIntoStore(){
-    /*do{
-    if(this->availableWheatRyeBreadStore){
-        mutexBakery.lock();
-        this->amountOfRyeWheatBread+=8;
-        mutexBakery.unlock();
-    }
-    if(this->amountOfRyeWheatBread<40){
-        mutexBakery.lock();
-        this->availableWheatRyeBreadStore = true;
-        mutexBakery.unlock();
-    }
-    }while(!this->availableWheatRyeBreadStore);
-    mutexBakery.lock();
-    if(this->amountOfRyeWheatBread >= 40) this->availableWheatRyeBreadStore = false;
-    mutexBakery.unlock();
-    refreshStore();*/
-
     {
         unique_lock<mutex> locker_WheatBread(mutexBreadStore);
         cond_RyeBreadFull.wait(locker_WheatBread, [&]{return getAvailableWheatRyeBreadStore();});
@@ -131,29 +104,31 @@ void Bakery::loadRyeWheatBreadIntoStore(){
         }
         else this->availableWheatRyeBreadStore = false;
     }
+    mutexConsole.lock();
     refreshStore();
+    mutexConsole.unlock();
 }
 
 void Bakery::sellRyeBread(int weight){
-   // mutexBreadStore.lock();
     amountOfRyeBread -= weight;
     if(this->amountOfRyeBread<40){
         this->availableRyeBreadStore = true;
         cond_RyeBreadFull.notify_all();
     }
-    //mutexBreadStore.unlock();
+    mutexConsole.lock();
     refreshStore();
+    mutexConsole.unlock();
 }
 
 void Bakery::sellWheatRyeBread(int weight){
-//    mutexBreadStore.lock();
     amountOfRyeWheatBread -= weight;
     if(this->amountOfRyeWheatBread<40){
         this->availableWheatRyeBreadStore = true;
         cond_WheatRyeBreadFull.notify_all();
     }
-//    mutexBreadStore.unlock();
+    mutexConsole.lock();
     refreshStore();
+    mutexConsole.unlock();
 }
 
 void Bakery::refreshStore(){
@@ -161,31 +136,25 @@ void Bakery::refreshStore(){
     int breadInRyeWheatStore = this->amountOfRyeWheatBread*10/MAX_AMOUNT_RYE_WHEAT_BREAD;
     int tmp_x=0;
     for(int i=0; i<10;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(6, 103 + tmp_x," ");
         mvprintw(3, 103 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
     }
     tmp_x=0;
     for(int i=0; i<breadInRyeStore;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(2));
         mvprintw(6, 103 + tmp_x," ");
         attroff(COLOR_PAIR(2));
-        mutexConsole.unlock();
         tmp_x ++;
     }
 
     tmp_x=0;
     for(int i=0; i<breadInRyeWheatStore;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(7));
         mvprintw(3, 103 + tmp_x," ");
         attroff(COLOR_PAIR(7));
-        mutexConsole.unlock();
         tmp_x ++;
     }
 }
@@ -223,12 +192,16 @@ void Bakery::runProcessBakeLoading(){
 
 void Bakery::loadRyeFlour(int weight){
     this->amountOfRyeFlour += weight;
+    mutexConsole.lock();
     refreshWarehousesWithFlour();
+    mutexConsole.unlock();
 }
 
 void Bakery::loadWheatFlour(int weight){
     this->amountOfWheatFlour += weight;
+    mutexConsole.lock();
     refreshWarehousesWithFlour();
+    mutexConsole.unlock();
 }
 
 void Bakery::refreshWarehousesWithFlour(){
@@ -236,12 +209,10 @@ void Bakery::refreshWarehousesWithFlour(){
     int flourInWheatWarehouse = this->amountOfWheatFlour*18/MAX_AMOUNT_WHEAT_FLOUR;
     int tmp_x=0, tmp_y=0;
     for(int i=0; i<18;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(8 + tmp_y, 82 + tmp_x," ");
         mvprintw(8 + tmp_y, 88 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;
@@ -251,11 +222,9 @@ void Bakery::refreshWarehousesWithFlour(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<flourInRyeWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(8 + tmp_y, 82 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;
@@ -266,11 +235,9 @@ void Bakery::refreshWarehousesWithFlour(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<flourInWheatWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(7));
         mvprintw(8 + tmp_y, 88 + tmp_x," ");
         attroff(COLOR_PAIR(7));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;

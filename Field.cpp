@@ -67,7 +67,7 @@ bool Field::isReadyToHarvest(){
 void Field::natureThread() {
 
     while(!endProgram){
-        usleep(rand()%6000000+4000000);
+        usleep(rand()%7000000+4000000);
         refreshCrops();
     }
 }
@@ -93,7 +93,7 @@ void Field::refreshCrops(){
             this->area[i].stateOfCrop ++;
             mutexNature.unlock();
             
-            mutexConsole.lock();      
+            mutexConsole.lock();
             attron(COLOR_PAIR(3));
             mvprintw(this->area[i].y,this->area[i].x, "%c", '*');
             attroff(COLOR_PAIR(3));

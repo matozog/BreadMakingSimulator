@@ -19,7 +19,7 @@ int amountOfWheatGrains=0;
 int amountOfRyeFlour=10, amountOfWheatFlour=10;
 bool availableRyeTank = true, availableRyeFlourWarehouse = true;
 bool availableWheatTank = true, availableWheatFlourWarehouse = true;
-bool availableMillWarehouses = true, availableAmountFlours = true;
+bool availableMillWarehouses = true, availableAmountWheatFlour = true, availableAmountRyeFlour  = true;
 
 public:
 
@@ -43,8 +43,10 @@ public:
     bool getAvailableWheatTank();
     bool getAvailableWheatWarehouse(){return availableWheatFlourWarehouse;}
     bool getAvailableRyeWarehouses(){return availableRyeFlourWarehouse;}
-    bool getStatusAmountFlours();
-    void setStatusAmountFlours(bool status);
+    bool getAvailableAmountWheatFlour(){return this->availableAmountWheatFlour;}
+    bool getAvailableAmountRyeFlour(){return this->availableAmountRyeFlour;}
+    void setStatusAmountOfRyeFlour(bool status){ this->availableAmountRyeFlour = status;}
+    void setStatusAmountOfWheatFlour(bool status){this->availableAmountWheatFlour = status;}
 };
 
 

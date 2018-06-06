@@ -37,7 +37,9 @@ void Shop::loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBread){
     this->amountOfRyeBread += amountOfRyeBread;
     this->amountOfWheatRyeBread += amountOfWheatRyeBread;
     mutexStoreShop.unlock();
+    mutexConsole.lock();
     refreshWarehouseWithBread();
+    mutexConsole.unlock();
 }
 
 void Shop::loadFlourToStore(int amountOfRyeFlour, int amountOfWheatFlour){
@@ -45,7 +47,9 @@ void Shop::loadFlourToStore(int amountOfRyeFlour, int amountOfWheatFlour){
     this->amountOfRyeFlour += amountOfRyeFlour;
     this->amountOfWheatFlour += amountOfWheatFlour;
     mutexStoreShop.unlock();
+    mutexConsole.lock();
     refreshWarehouseWithFlour();
+    mutexConsole.unlock();
 }
 
 void Shop::refreshWarehouseWithBread(){
@@ -53,14 +57,12 @@ void Shop::refreshWarehouseWithBread(){
     int breadInWheatWarehouse = this->amountOfWheatRyeBread*11/MAX_AMOUNT_WHEAT_FLOUR;
     int tmp_x=0;
     for(int i=0; i<11;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(27, 44 + tmp_x," ");
         mvprintw(28, 44 + tmp_x," ");
         mvprintw(30, 44 + tmp_x," ");
         mvprintw(31, 44 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;
@@ -68,12 +70,10 @@ void Shop::refreshWarehouseWithBread(){
     }
     tmp_x=0;
     for(int i=0; i<breadInRyeWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(27, 44 + tmp_x," ");
         mvprintw(28, 44 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;
@@ -81,12 +81,10 @@ void Shop::refreshWarehouseWithBread(){
     }
     tmp_x=0;
     for(int i=0; i<breadInWheatWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(7));
         mvprintw(30, 44 + tmp_x," ");
         mvprintw(31, 44 + tmp_x," ");
         attroff(COLOR_PAIR(7));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;
@@ -99,14 +97,12 @@ void Shop::refreshWarehouseWithFlour(){
     int flourInWheatWarehouse = this->amountOfWheatFlour*11/MAX_AMOUNT_WHEAT_FLOUR;
     int tmp_x=0;
     for(int i=0; i<11;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(21, 44 + tmp_x," ");
         mvprintw(22, 44 + tmp_x," ");
         mvprintw(24, 44 + tmp_x," ");
         mvprintw(25, 44 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;
@@ -114,12 +110,10 @@ void Shop::refreshWarehouseWithFlour(){
     }
     tmp_x=0;
     for(int i=0; i<flourInRyeWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(21, 44 + tmp_x," ");
         mvprintw(22, 44 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;
@@ -128,12 +122,10 @@ void Shop::refreshWarehouseWithFlour(){
 
     tmp_x=0;
     for(int i=0; i<flourInWheatWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(7));
         mvprintw(24, 44 + tmp_x," ");
         mvprintw(25, 44 + tmp_x," ");
         attroff(COLOR_PAIR(7));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%11 == 0){
             tmp_x = 0;

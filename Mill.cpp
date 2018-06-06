@@ -5,14 +5,16 @@ extern bool endProgram;
 mutex mutexMill, mutexTank;
 mutex mutexStore;
 condition_variable cond_RyeTank, cond_WheatTank, cond_WheatFlourStore, cond_RyeFlourStore;
-extern condition_variable cond_amountMillFlour;
+extern condition_variable cond_amountRyeMillFlour, cond_amountWheatMillFlour;
 
 Mill::Mill(){
     amountOfRyeGrains = 0;
     amountOfWheatGrains = 0;
     amountOfWheatFlour = 10;
     amountOfRyeFlour = 10;
+    mutexConsole.lock();
     refreshWarehouse();
+    mutexConsole.unlock();
 }
 
 void Mill::takeGrainsFromFarmer(string typeField){
@@ -25,7 +27,7 @@ void Mill::takeGrainsFromFarmer(string typeField){
             this->amountOfRyeGrains+=30;
             if(this->amountOfRyeGrains<90){
                 this->availableRyeTank = true;
-                cond_RyeTank.notify_one();
+                cond_RyeTank.notify_all();
             }
             else{
                 this->availableRyeTank = false;
@@ -40,25 +42,17 @@ void Mill::takeGrainsFromFarmer(string typeField){
             this->amountOfWheatGrains+=30;
             if(this->amountOfWheatGrains<90){
                 this->availableWheatTank = true;
-                cond_WheatTank.notify_one();
+                cond_WheatTank.notify_all();
             }
             else{
                 this->availableWheatTank = false;
             }
         }
     }
-    mutexMill.lock();
+    mutexConsole.lock();
     refreshTanks();
-    mutexMill.unlock();
+    mutexConsole.unlock();
     usleep(rand()%4000000);
-}
-
-void Mill::setStatusAmountFlours(bool status){
-    this->availableAmountFlours = status;
-}
-
-bool Mill::getStatusAmountFlours(){
-    return this->availableAmountFlours;
 }
 
 bool Mill::getAvailableRyeTank(){
@@ -86,11 +80,19 @@ void Mill::makeFlour(){
             produceWheatFlour();
         }
         mutexStore.lock();
-        if(amountOfRyeFlour >= 10 && amountOfWheatFlour >= 10){
-            this->availableAmountFlours = true;
-            cond_amountMillFlour.notify_one();
+        if(amountOfRyeFlour>=10)
+        {
+            this->availableAmountRyeFlour = true;
+            cond_amountRyeMillFlour.notify_all();
         }
-        else this->availableAmountFlours = false;
+        else if(amountOfWheatFlour >= 10){
+            this->availableAmountWheatFlour = true;
+            cond_amountWheatMillFlour.notify_all();
+        }
+        else{
+            this->availableAmountWheatFlour = false;
+            this->availableAmountRyeFlour = false;
+        }
         mutexStore.unlock();
         usleep(rand()%500000);
     }
@@ -105,9 +107,9 @@ void Mill::produceRyeFlour(){
             availableRyeTank = true;
             cond_RyeTank.notify_one();
         }
-        refreshTanks();
         mutexTank.unlock();
         mutexConsole.lock();
+        refreshTanks();
         mvprintw(1,39,"%s","rye flour  ");
         mutexConsole.unlock();
         runProcessLoading();
@@ -124,9 +126,9 @@ void Mill::produceWheatFlour(){
             availableWheatTank = true;
             cond_WheatTank.notify_one();
         }
-        refreshTanks();
         mutexTank.unlock();
         mutexConsole.lock();
+        refreshTanks();
         mvprintw(1,39,"%s","wheat flour");
         mutexConsole.unlock();
         runProcessLoading();
@@ -135,109 +137,88 @@ void Mill::produceWheatFlour(){
 }
 
 void Mill::loadWheatFlourIntoWarehouse(){
-    /*do{
-        if(this->availableWheatFlourWarehouse){
-            mutexMill.lock();
-            this->amountOfWheatFlour+=10;
-            mutexMill.unlock();
-        }
-        if(this->amountOfWheatFlour<100){
-            mutexMill.lock();
-            this->availableWheatFlourWarehouse = true;
-            mutexMill.unlock();
-        }
-    }while(!this->availableWheatFlourWarehouse);
-    mutexMill.lock();
-    if(this->amountOfWheatFlour >= 100) this->availableWheatFlourWarehouse = false;
-    mutexMill.unlock();
-    refreshWarehouse();*/
     {
         unique_lock<mutex> locker_WheatFlour(mutexStore);
         cond_WheatFlourStore.wait(locker_WheatFlour, [&]{return getAvailableWheatWarehouse();});
         this->availableWheatFlourWarehouse = false;
         this->amountOfWheatFlour+=10;
-        if(amountOfWheatFlour < 100 ){//&& amountOfWheatFlour >=10){
+        if(amountOfWheatFlour < 100 ){
             this->availableWheatFlourWarehouse = true;
             cond_WheatFlourStore.notify_one();
-//            cond_amountMillFlour.notify_one();
         }
         else{
             this->availableWheatFlourWarehouse = false;
         }
+        mutexConsole.lock();
         refreshWarehouse();
+        mutexConsole.unlock();
         usleep(100000);
     }
 
 }
 
 void Mill::loadRyeFlourIntoWarehouse(){
-    /*do{
-        if(this->availableRyeFlourWarehouse){
-            mutexMill.lock();
-            this->amountOfRyeFlour+=10;
-            mutexMill.unlock();
-        }
-        if(this->amountOfRyeFlour<100){
-            mutexMill.lock();
-            this->availableRyeFlourWarehouse = true;
-            mutexMill.unlock();
-        }
-    }while(!this->availableRyeFlourWarehouse);
-    mutexMill.lock();
-    if(this->amountOfRyeFlour >= 100) this->availableRyeFlourWarehouse = false;
-    mutexMill.unlock();
-    refreshWarehouse();*/
     {
         unique_lock<mutex> locker_RyeFlour(mutexStore);
         cond_RyeFlourStore.wait(locker_RyeFlour, [&]{return getAvailableRyeWarehouses();});
         this->availableRyeFlourWarehouse = false;
         this->amountOfRyeFlour+=10;
-        if(amountOfRyeFlour < 100 ){//&& amountOfRyeFlour >=10){
+        if(amountOfRyeFlour < 100 ){
             this->availableRyeFlourWarehouse = true;
             cond_RyeFlourStore.notify_one();
-//            cond_amountMillFlour.notify_one();
         }
         else{
             this->availableWheatFlourWarehouse = false;
         }
+        mutexConsole.lock();
         refreshWarehouse();
+        mutexConsole.unlock();
         usleep(100000);
     }
 }
 
 void Mill::sellRyeFlour(int weight){
-//    mutexMill.lock();
     amountOfRyeFlour -= weight;
-    if(amountOfRyeFlour<100){// && amountOfRyeFlour >=10){
+    if(amountOfRyeFlour<100){
         this->availableRyeFlourWarehouse = true;
         cond_RyeFlourStore.notify_one();
         if(amountOfRyeFlour >= 10){
-            this->availableAmountFlours = true;
-            cond_amountMillFlour.notify_one();
+            this->availableAmountRyeFlour = true;
+            cond_amountRyeMillFlour.notify_one();
+        }
+        else{
+            this->availableAmountRyeFlour = false;
         }
     }
     else{
         this->availableRyeFlourWarehouse = false;
     }
+    mutexConsole.lock();
     refreshWarehouse();
-//    mutexMill.unlock();
+    mutexConsole.unlock();
     usleep(100000);
 
 }
 
 void Mill::sellWheatFlour(int weight){
-//    mutexMill.lock();
     amountOfWheatFlour -= weight;
-    if(amountOfWheatFlour<100){//{ && amountOfWheatFlour >=10){
+    if(amountOfWheatFlour<100){
         this->availableWheatFlourWarehouse = true;
         cond_WheatFlourStore.notify_one();
-//        cond_amountMillFlour.notify_one();
+        if(amountOfWheatFlour >= 10){
+            this->availableAmountWheatFlour = true;
+            cond_amountWheatMillFlour.notify_one();
+        }
+        else{
+            this->availableAmountWheatFlour = false;
+        }
     }
     else{
         this->availableWheatFlourWarehouse = false;
     }
+    mutexConsole.lock();
     refreshWarehouse();
-//    mutexMill.unlock();
+    mutexConsole.unlock();
     usleep(100000);
 
 }
@@ -247,12 +228,10 @@ void Mill::refreshWarehouse(){
     int flourInWheatWarehouse = this->amountOfWheatFlour*20/MAX_FLOUR_IN_WAREHOUSE;
     int tmp_x=0, tmp_y=0;
     for(int i=0; i<20;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(12 + tmp_y, 45 + tmp_x," ");
         mvprintw(9 + tmp_y, 45 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%10 == 0){
             tmp_x = 0;
@@ -262,11 +241,9 @@ void Mill::refreshWarehouse(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<flourInRyeWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(12 + tmp_y, 45 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%10 == 0){
             tmp_x = 0;
@@ -277,11 +254,9 @@ void Mill::refreshWarehouse(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<flourInWheatWarehouse;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(7));
         mvprintw(9 + tmp_y, 45 + tmp_x," ");
         attroff(COLOR_PAIR(7));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%10 == 0){
             tmp_x = 0;
@@ -324,12 +299,10 @@ void Mill::refreshTanks(){
     int grainsInWheatTank = this->amountOfWheatGrains*18/MAX_AMOUNT_GRAINS_IN_TANK;
     int tmp_x=0, tmp_y=0;
     for(int i=0; i<18;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(4));
         mvprintw(12 + tmp_y, 25 + tmp_x," ");
         mvprintw(12 + tmp_y, 31 + tmp_x," ");
         attroff(COLOR_PAIR(4));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;
@@ -339,11 +312,9 @@ void Mill::refreshTanks(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<grainsInRyeTank;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(12 + tmp_y, 25 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;
@@ -354,11 +325,9 @@ void Mill::refreshTanks(){
     tmp_x=0;
     tmp_y=0;
     for(int i=0; i<grainsInWheatTank;i++){
-        mutexConsole.lock();
         attron(COLOR_PAIR(3));
         mvprintw(12 + tmp_y, 31 + tmp_x," ");
         attroff(COLOR_PAIR(3));
-        mutexConsole.unlock();
         tmp_x ++;
         if(tmp_x%3 == 0){
             tmp_x = 0;

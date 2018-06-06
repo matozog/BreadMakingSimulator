@@ -12,7 +12,7 @@ extern mutex mutexMill;
 mutex mutexMillGate;
 extern condition_variable cond_MillGate;
 
-condition_variable cond_amountMillFlour;
+condition_variable cond_amountRyeMillFlour, cond_amountWheatMillFlour;
 
 Road Truck::roadFromBakeryToMillGate(BakeryToMillGate);
 Road Truck::roadFromMillToBakery(MillToBakery);
@@ -37,62 +37,34 @@ void Truck::setPosition(int y, int x){
     this->x = x;
     this->y=y;
     if(this->ID == "bakeryTruck"){
-        mutexConsole.lock();
+//        mutexConsole.lock();
         attron(COLOR_PAIR(5));
         mvprintw(y,x," ");
         attroff(COLOR_PAIR(5));
-        mutexConsole.unlock();
+//        mutexConsole.unlock();
     }
     else if(this->ID == "shopTruck"){
-        mutexConsole.lock();
+//        mutexConsole.lock();
         attron(COLOR_PAIR(6));
         mvprintw(y,x," ");
         attroff(COLOR_PAIR(6));
-        mutexConsole.unlock();
+//        mutexConsole.unlock();
     }
 }
-
-/*void Truck::takeRyeFlour(int weight){
-    unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
-    cond_amountMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getAvailableMillWarehouses() ;});
-    mill.sellRyeFlour(weight);
-    cond_amountMillFlour.notify_one();
-}
-
-void Truck::takeWheatFlour(int weight){
-
-    cond_amountMillFlour.notify_one();
-}*/
 
 void Truck::takeFlourFromMill(string type, int weight){
-    /*if(type == "rye"){
-        do{
-            usleep(10000);
-        }while(mill.getAmountOfRyeFlour()<weight);
-        usleep(rand()%500000+2000000);
-        if(mill.getAmountOfRyeFlour()>=weight){
-            mill.sellRyeFlour(weight);
-        }
-    }
-    else{
-        do{
-            usleep(10000);
-        }while((mill.getAmountOfWheatFlour()<weight/2) && (mill.getAmountOfRyeFlour() <weight/2));
-        usleep(rand()%500000+2000000);
-        if(mill.getAmountOfWheatFlour()>=weight/2 && mill.getAmountOfRyeFlour() >= weight/2){
-            mill.sellWheatFlour(weight/2);
-            mill.sellRyeFlour(weight/2);
-        }
-    }
-    usleep(rand()%500000 + 100000);*/
     {
-        unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
-        cond_amountMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getStatusAmountFlours() ;});
-        mill.setStatusAmountFlours(false);
+
         if(type == "rye"){
+           unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
+           cond_amountRyeMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getAvailableAmountRyeFlour() ;});
+           mill.setStatusAmountOfRyeFlour(false);
            mill.sellRyeFlour(weight);
         }
         else{
+           unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
+           cond_amountWheatMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getAvailableAmountWheatFlour() ;});
+           mill.setStatusAmountOfWheatFlour(false);
            mill.sellRyeFlour(weight/2);
            mill.sellWheatFlour(weight/2);
         }
@@ -105,18 +77,11 @@ void Truck::simulatingLife(){
         if(bakery.isNeededRyeFlour()){
             roadFromBakeryToMillGate.moveTruckToDestination(this);
             usleep(50000);
-            /*do{
-                usleep(1000);
-            }while(!mill.getAvailableMillWarehouses());
-            if(mill.getAvailableMillWarehouses()){
-                mutexMillGate.lock();
-                mill.setAvailableMillWarehouses(false);
-                mutexMillGate.unlock();
-            }*/
             {
                 unique_lock<mutex> locker_MillGate(mutexMillGate);
                 cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});
                 mill.setAvailableMillWarehouses(false);
+                usleep(200000);
                 roadBakeryFromGateToMill.moveTruckToDestination(this);
                 takeFlourFromMill("rye", MAX_LOAD_TRUCK);
                 mill.setAvailableMillWarehouses(true);
@@ -128,15 +93,6 @@ void Truck::simulatingLife(){
         if(bakery.isNeededWheatRyeFlour()){
             roadFromBakeryToMillGate.moveTruckToDestination(this);
             usleep(50000);
-            /*do{
-                usleep(1000);
-            }while(!mill.getAvailableMillWarehouses());
-            if(mill.getAvailableMillWarehouses()){
-                mutexMillGate.lock();
-                mill.setAvailableMillWarehouses(false);
-                mutexMillGate.unlock();
-            }*/
-
             {
             unique_lock<mutex> locker_MillGate(mutexMillGate);
             cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});

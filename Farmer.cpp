@@ -26,7 +26,9 @@ Farmer::Farmer(int x, int y, int ID) {
     this->y = y;
     this->ID = ID;
     color = rand()%3+1;
+    mutexConsole.lock();
     setPosition(y,x);
+    mutexConsole.unlock();
 }
 
 void Farmer::goFieldWithWheat() {
@@ -51,10 +53,6 @@ void Farmer::goFieldWithWheat() {
 }
 
 void Farmer::goFieldWithRye() {
-    // remove farmer from farm
-    /*mutexConsole.lock();
-    mvprintw(this->y_start, this->x_start, " ");
-    mutexConsole.unlock();*/
 
     // set farmer state and run function moveFarmer
     this->state = "goFieldWithRye"; 
@@ -66,7 +64,7 @@ void Farmer::goFieldWithRye() {
     mutexFarmers.lock();
     fieldWithRye.setAvailable(true);
     mutexFarmers.unlock();
-    //while(true){}
+
     // farmer go to mill
     sellGrain();
 }
@@ -111,7 +109,9 @@ void Farmer::goToHome() {
     mutexFarmers.unlock();
 
     // set position farmer on start position
+    mutexConsole.lock();
     this->setPosition(this->y_start, this->x_start);
+    mutexConsole.unlock();
     this->state = "rest";
 }
 
@@ -127,19 +127,6 @@ void Farmer::simulatingLife() {
     condition_variable cond_startPosition;
     while(!endProgram) {
         Resting();
-        
-        /*unique_lock<mutex> locker(mutexFarmers);
-        cond_available_field.wait(locker, [&]{return isAvailableField();});
-        if ((rand() % 2 + 0) == 1 && fieldWithRye.getAvailable()) {
-            fieldWithRye.setAvailable(false);
-            locker.unlock();
-            goFieldWithRye();
-        } 
-        else{
-            fieldWithWheat.setAvailable(false);
-            locker.unlock();
-            goFieldWithWheat();
-        }*/
         
         mutexFarmers.lock();
         if ((rand() % 2 + 0) == 1 && fieldWithRye.getAvailable()) {
@@ -164,18 +151,18 @@ bool Farmer::isAvailableField(){
 }
 
 void Farmer::Resting() {
+    mutexConsole.lock();
     setPosition(y_start, x_start);
-    usleep(rand()%1000000 + 2000000);
+    mutexConsole.unlock();
+    usleep(rand()%2000000 + 2000000);
 }
 
 void Farmer::setPosition(int y, int x) {
     this->x = x;
     this->y = y;
-    mutexConsole.lock();
     attron(COLOR_PAIR(color));
     mvprintw(y,x,"%d", this->ID);
     attroff(COLOR_PAIR(color));
-    mutexConsole.unlock();
 }
 
 void Farmer::setID(int ID) {
