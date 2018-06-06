@@ -33,8 +33,8 @@ void ShopTruck::simulatingLife(){
                 mill.setAvailableMillWarehouses(false);
                 usleep(200000);
                 roadShopFromGateToMill.moveTruckToDestination(this);
-                takeFlourFromMill("rye", MAX_LOAD_TRUCK);
-                takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK);
+                takeFlourFromMill("rye", MAX_LOAD_TRUCK/2);
+                takeFlourFromMill("wheat", MAX_LOAD_TRUCK/2);
                 mill.setAvailableMillWarehouses(true);
                 cond_MillGate.notify_one();
             }

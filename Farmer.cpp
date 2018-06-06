@@ -94,10 +94,6 @@ void Farmer::sellGrain() {
 
 void Farmer::goToHome() {
     // remove farmer from mill and go to home
-    mutexFarmers.lock();
-    mapFields[this->y][this->x].available = true;
-    mutexFarmers.unlock();
-
     roadFromMillToHome.moveFarmerToDestination(this);
     
     mutexConsole.lock();

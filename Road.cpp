@@ -149,8 +149,6 @@ void Road::moveFarmerToDestination(Farmer *farmer) {
             mvprintw(farmer->getY(), farmer->getX(), " ");
             farmer->setPosition(road.at(j).y, road.at(j).x);
             mutexConsole.unlock();
-            
-
         }
         
     }

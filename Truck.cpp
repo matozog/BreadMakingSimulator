@@ -37,18 +37,14 @@ void Truck::setPosition(int y, int x){
     this->x = x;
     this->y=y;
     if(this->ID == "bakeryTruck"){
-//        mutexConsole.lock();
         attron(COLOR_PAIR(5));
         mvprintw(y,x," ");
         attroff(COLOR_PAIR(5));
-//        mutexConsole.unlock();
     }
     else if(this->ID == "shopTruck"){
-//        mutexConsole.lock();
         attron(COLOR_PAIR(6));
         mvprintw(y,x," ");
         attroff(COLOR_PAIR(6));
-//        mutexConsole.unlock();
     }
 }
 
@@ -65,8 +61,7 @@ void Truck::takeFlourFromMill(string type, int weight){
            unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
            cond_amountWheatMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getAvailableAmountWheatFlour() ;});
            mill.setStatusAmountOfWheatFlour(false);
-           mill.sellRyeFlour(weight/2);
-           mill.sellWheatFlour(weight/2);
+           mill.sellWheatFlour(weight);
         }
     }
     usleep(rand()%500000 + 100000);
@@ -98,7 +93,8 @@ void Truck::simulatingLife(){
             cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});
             mill.setAvailableMillWarehouses(false);
             roadBakeryFromGateToMill.moveTruckToDestination(this);
-            takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK);
+            takeFlourFromMill("wheat", MAX_LOAD_TRUCK);
+            takeFlourFromMill("rye",MAX_LOAD_TRUCK);
             mill.setAvailableMillWarehouses(true);
             cond_MillGate.notify_one();
             }
