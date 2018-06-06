@@ -1,8 +1,13 @@
 #include"Bakery.h"
+#include <condition_variable>
+
+condition_variable cond_RyeBreadFull, cond_WheatRyeBreadFull;
 
 extern bool endProgram;
 extern mutex mutexConsole;
 mutex mutexBakery;
+mutex mutexBreadStore;
+extern condition_variable cond_BreadStores;
 
 Bakery::Bakery(){
 
@@ -63,7 +68,7 @@ void Bakery::produceWheatRyeBread(){
 }
 
 void Bakery::loadRyeBreadIntoStore(){
-    do{
+    /*do{
     if(this->availableRyeBreadStore){
         mutexBakery.lock();
         this->amountOfRyeBread+=8;
@@ -78,11 +83,25 @@ void Bakery::loadRyeBreadIntoStore(){
     mutexBakery.lock();
     if(this->amountOfRyeBread >= 40) this->availableRyeBreadStore = false;
     mutexBakery.unlock();
+    refreshStore();*/
+    {
+        unique_lock<mutex> locker_RyeBread(mutexBreadStore);
+        cond_RyeBreadFull.wait(locker_RyeBread, [&]{return getAvailableRyeBreadStore();});
+        this->availableRyeBreadStore = false;
+        this->amountOfRyeBread+=8;
+        this->availableRyeBreadAmount = true;
+        cond_BreadStores.notify_one();
+        if(this->amountOfRyeBread<40){
+            this->availableRyeBreadStore = true;
+            cond_RyeBreadFull.notify_all();
+        }
+        else this->availableRyeBreadStore = false;
+    }
     refreshStore();
 }
 
 void Bakery::loadRyeWheatBreadIntoStore(){
-    do{
+    /*do{
     if(this->availableWheatRyeBreadStore){
         mutexBakery.lock();
         this->amountOfRyeWheatBread+=8;
@@ -97,20 +116,43 @@ void Bakery::loadRyeWheatBreadIntoStore(){
     mutexBakery.lock();
     if(this->amountOfRyeWheatBread >= 40) this->availableWheatRyeBreadStore = false;
     mutexBakery.unlock();
+    refreshStore();*/
+
+    {
+        unique_lock<mutex> locker_WheatBread(mutexBreadStore);
+        cond_RyeBreadFull.wait(locker_WheatBread, [&]{return getAvailableWheatRyeBreadStore();});
+        this->availableWheatRyeBreadStore = false;
+        this->amountOfRyeWheatBread+=8;
+        this->availableWheatRyeAmount = true;
+        cond_BreadStores.notify_one();
+        if(this->amountOfRyeWheatBread<40){
+            this->availableWheatRyeBreadStore = true;
+            cond_WheatRyeBreadFull.notify_all();
+        }
+        else this->availableWheatRyeBreadStore = false;
+    }
     refreshStore();
 }
 
 void Bakery::sellRyeBread(int weight){
-    mutexBakery.lock();
+   // mutexBreadStore.lock();
     amountOfRyeBread -= weight;
-    mutexBakery.unlock();
+    if(this->amountOfRyeBread<40){
+        this->availableRyeBreadStore = true;
+        cond_RyeBreadFull.notify_all();
+    }
+    //mutexBreadStore.unlock();
     refreshStore();
 }
 
 void Bakery::sellWheatRyeBread(int weight){
-    mutexBakery.lock();
+//    mutexBreadStore.lock();
     amountOfRyeWheatBread -= weight;
-    mutexBakery.unlock();
+    if(this->amountOfRyeWheatBread<40){
+        this->availableWheatRyeBreadStore = true;
+        cond_WheatRyeBreadFull.notify_all();
+    }
+//    mutexBreadStore.unlock();
     refreshStore();
 }
 

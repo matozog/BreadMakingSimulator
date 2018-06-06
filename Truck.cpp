@@ -7,7 +7,12 @@ extern mutex mutexConsole;
 extern mutex mutexMill;
 extern Bakery bakery;
 extern Mill mill;
+extern mutex mutexStore;
 extern mutex mutexMill;
+mutex mutexMillGate;
+extern condition_variable cond_MillGate;
+
+condition_variable cond_amountMillFlour;
 
 Road Truck::roadFromBakeryToMillGate(BakeryToMillGate);
 Road Truck::roadFromMillToBakery(MillToBakery);
@@ -47,8 +52,20 @@ void Truck::setPosition(int y, int x){
     }
 }
 
+/*void Truck::takeRyeFlour(int weight){
+    unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
+    cond_amountMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getAvailableMillWarehouses() ;});
+    mill.sellRyeFlour(weight);
+    cond_amountMillFlour.notify_one();
+}
+
+void Truck::takeWheatFlour(int weight){
+
+    cond_amountMillFlour.notify_one();
+}*/
+
 void Truck::takeFlourFromMill(string type, int weight){
-    if(type == "rye"){
+    /*if(type == "rye"){
         do{
             usleep(10000);
         }while(mill.getAmountOfRyeFlour()<weight);
@@ -67,6 +84,19 @@ void Truck::takeFlourFromMill(string type, int weight){
             mill.sellRyeFlour(weight/2);
         }
     }
+    usleep(rand()%500000 + 100000);*/
+    {
+        unique_lock<mutex> locker_millFlourWarehouses(mutexStore);
+        cond_amountMillFlour.wait(locker_millFlourWarehouses, [&]{return mill.getStatusAmountFlours() ;});
+        mill.setStatusAmountFlours(false);
+        if(type == "rye"){
+           mill.sellRyeFlour(weight);
+        }
+        else{
+           mill.sellRyeFlour(weight/2);
+           mill.sellWheatFlour(weight/2);
+        }
+    }
     usleep(rand()%500000 + 100000);
 }
 
@@ -75,38 +105,47 @@ void Truck::simulatingLife(){
         if(bakery.isNeededRyeFlour()){
             roadFromBakeryToMillGate.moveTruckToDestination(this);
             usleep(50000);
-            do{
+            /*do{
                 usleep(1000);
             }while(!mill.getAvailableMillWarehouses());
             if(mill.getAvailableMillWarehouses()){
-                mutexMill.lock();
+                mutexMillGate.lock();
                 mill.setAvailableMillWarehouses(false);
-                mutexMill.unlock();
+                mutexMillGate.unlock();
+            }*/
+            {
+                unique_lock<mutex> locker_MillGate(mutexMillGate);
+                cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});
+                mill.setAvailableMillWarehouses(false);
+                roadBakeryFromGateToMill.moveTruckToDestination(this);
+                takeFlourFromMill("rye", MAX_LOAD_TRUCK);
+                mill.setAvailableMillWarehouses(true);
+                cond_MillGate.notify_one();
             }
-            roadBakeryFromGateToMill.moveTruckToDestination(this);
-            takeFlourFromMill("rye", MAX_LOAD_TRUCK);
-            mutexMill.lock();
-            mill.setAvailableMillWarehouses(true);
-            mutexMill.unlock();
             roadFromMillToBakery.moveTruckToDestination(this);
             bakery.loadRyeFlour(MAX_LOAD_TRUCK);
         }
         if(bakery.isNeededWheatRyeFlour()){
             roadFromBakeryToMillGate.moveTruckToDestination(this);
             usleep(50000);
-            do{
+            /*do{
                 usleep(1000);
             }while(!mill.getAvailableMillWarehouses());
             if(mill.getAvailableMillWarehouses()){
-                mutexMill.lock();
+                mutexMillGate.lock();
                 mill.setAvailableMillWarehouses(false);
-                mutexMill.unlock();
-            }
+                mutexMillGate.unlock();
+            }*/
+
+            {
+            unique_lock<mutex> locker_MillGate(mutexMillGate);
+            cond_MillGate.wait(locker_MillGate, [&]{return mill.getAvailableMillWarehouses();});
+            mill.setAvailableMillWarehouses(false);
             roadBakeryFromGateToMill.moveTruckToDestination(this);
             takeFlourFromMill("wheat-rye", MAX_LOAD_TRUCK);
-            mutexMill.lock();
             mill.setAvailableMillWarehouses(true);
-            mutexMill.unlock();
+            cond_MillGate.notify_one();
+            }
             roadFromMillToBakery.moveTruckToDestination(this);
             bakery.loadWheatFlour(MAX_LOAD_TRUCK/2);
             bakery.loadRyeFlour(MAX_LOAD_TRUCK/2);

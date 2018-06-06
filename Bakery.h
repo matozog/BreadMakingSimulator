@@ -16,7 +16,8 @@ static const int MAX_AMOUNT_RYE_WHEAT_BREAD = 40;
 Truck deliveryTruck;
 thread deliveryTruckThread;
 bool neededRyeFlour = true, neededWheatRyeFlour = true;
-bool availableRyeBreadStore =true, availableWheatRyeBreadStore = true;
+bool availableRyeBreadStore =true, availableWheatRyeBreadStore = true, fullRyeBreadStore = false, fullWheatRyeBreadStore = false;
+bool availableRyeBreadAmount = false, availableWheatRyeAmount = false;
 int amountOfRyeFlour=10, amountOfWheatFlour = 10, amountOfRyeBread = 0, amountOfRyeWheatBread=0;
 
 public:
@@ -37,7 +38,12 @@ public:
     int getAmountOfWheatRyeBread(){return amountOfRyeWheatBread;}
     void sellRyeBread(int weight);
     void sellWheatRyeBread(int weight);
-
+    bool getAvailableRyeBreadStore(){return this->availableRyeBreadStore;}
+    bool getAvailableWheatRyeBreadStore(){return this->availableWheatRyeBreadStore;}
+    bool getAvailableRyeBreadAmount(){ return availableRyeBreadAmount;}
+    bool getAvailableWheatRyeBreadAmount(){return availableWheatRyeAmount;}
+    void setAvailableRyeBreadAmount(bool flag) {this->availableRyeBreadAmount = flag;}
+    void setAvailableWheatRyeBreadAmount(bool flag){this->availableWheatRyeAmount = flag;}
 };
 
 #endif

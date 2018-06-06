@@ -8,6 +8,8 @@ using namespace std;
 
 class ShopTruck : public Truck{
 
+    string isNeeded = "flour";
+
 public:
     ShopTruck();
     ShopTruck(int y, int x, string ID);
@@ -15,6 +17,7 @@ public:
     bool checkAmountOfRyeBread();
     void simulatingLife();
     void takeBreadFromBakery(string type, int weight);
+    void setWhatIsNeeded(string needed){this->isNeeded = needed;}
 };
 
 #endif

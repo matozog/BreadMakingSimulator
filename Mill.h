@@ -16,10 +16,10 @@ static const int MAX_AMOUNT_GRAINS_IN_TANK = 90;
 static const int MAX_FLOUR_IN_WAREHOUSE = 100;
 int amountOfRyeGrains=0;
 int amountOfWheatGrains=0;
-int amountOfRyeFlour=0, amountOfWheatFlour=0;
+int amountOfRyeFlour=10, amountOfWheatFlour=10;
 bool availableRyeTank = true, availableRyeFlourWarehouse = true;
 bool availableWheatTank = true, availableWheatFlourWarehouse = true;
-bool availableMillWarehousese = true;
+bool availableMillWarehouses = true, availableAmountFlours = true;
 
 public:
 
@@ -37,10 +37,14 @@ public:
     int getAmountOfWheatFlour(){ return amountOfWheatFlour;}
     void sellRyeFlour(int weight);
     void sellWheatFlour(int weight);
-    bool getAvailableMillWarehouses(){return availableMillWarehousese;}
-    void setAvailableMillWarehouses(bool availableWarehouses){this->availableMillWarehousese = availableWarehouses;}
+    bool getAvailableMillWarehouses(){return availableMillWarehouses;}
+    void setAvailableMillWarehouses(bool availableWarehouses){this->availableMillWarehouses = availableWarehouses;}
     bool getAvailableRyeTank();
     bool getAvailableWheatTank();
+    bool getAvailableWheatWarehouse(){return availableWheatFlourWarehouse;}
+    bool getAvailableRyeWarehouses(){return availableRyeFlourWarehouse;}
+    bool getStatusAmountFlours();
+    void setStatusAmountFlours(bool status);
 };
 
 

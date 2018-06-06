@@ -29,6 +29,8 @@ public:
     int getYStart(){return y_start;}
     int getX(){return x;}
     int getY(){return y;}
+    void takeRyeFlour(int weight);
+    void takeWheatFlour(int weight);
 
 };
 

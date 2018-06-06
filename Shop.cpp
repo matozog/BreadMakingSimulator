@@ -2,6 +2,7 @@
 
 extern bool endProgram;
 extern mutex mutexConsole;
+mutex mutexStoreShop;
 
 Shop::Shop(){
 
@@ -19,25 +20,31 @@ void Shop::simulatingShopLife(){
     this->deliveryShopTruck = ShopTruck(22,65, "shopTruck");
     this->deliveryShopTruckThread = thread(&ShopTruck::simulatingLife, &deliveryShopTruck);
     while(!endProgram){
+        mutexStoreShop.lock();
         if((amountOfRyeBread + amountOfWheatRyeBread) < (amountOfWheatFlour + amountOfRyeFlour)){
             whatIsNeeded = "bread";
         }
         else{
             whatIsNeeded = "flour";
         }
+        mutexStoreShop.unlock();
     }
     this->deliveryShopTruckThread.join();
 }
 
 void Shop::loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBread){
+    mutexStoreShop.lock();
     this->amountOfRyeBread += amountOfRyeBread;
     this->amountOfWheatRyeBread += amountOfWheatRyeBread;
+    mutexStoreShop.unlock();
     refreshWarehouseWithBread();
 }
 
 void Shop::loadFlourToStore(int amountOfRyeFlour, int amountOfWheatFlour){
+    mutexStoreShop.lock();
     this->amountOfRyeFlour += amountOfRyeFlour;
     this->amountOfWheatFlour += amountOfWheatFlour;
+    mutexStoreShop.unlock();
     refreshWarehouseWithFlour();
 }
 
