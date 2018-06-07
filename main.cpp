@@ -1,6 +1,7 @@
 #include "Farmer.h"
 #include "Bakery.h"
 #include "Shop.h"
+#include "Client.h"
 #include <fstream>
 #include <atomic>
 #include <unistd.h>
@@ -11,7 +12,7 @@ using namespace std;
 
 
 mutex mutexConsole;
-mutex mutexFarmers;
+mutex mutexFarmers, mutexClients;
 
 bool loadMapFromFile();
 void drawMap();
@@ -28,6 +29,7 @@ CoordinateField** mapFields;
 int widthMap = 0, heightMap = 0;
 bool endProgram = false;
 int amountOfFarmers = 9;  // max 9
+int amountOfClients = 10;
 
 int main(int argc, char **argv ) {
 
@@ -50,12 +52,13 @@ int main(int argc, char **argv ) {
     // declare threads and objects
 
     thread *farmerThreads = new thread[amountOfFarmers];
+    thread *clientThreads = new thread[amountOfClients];
     vector<Farmer> farmers;
+    vector<Client> clients;
     thread natureFieldWithWheat, natureFieldWithRye, millThread, bakeryThread;
     thread shopThread;
 
     // load map from file
-
     if(loadMapFromFile())
         drawMap();
     else cout<< "Brak pliku";
@@ -86,9 +89,27 @@ int main(int argc, char **argv ) {
         }
     }
 
+    //create clients
+    int x_client = 101, y_client = 20;
+    for(int i=0, j=0; i<amountOfClients; i++, j+=3)
+    {
+        Client client(x_client+j,y_client,i);
+        clients.push_back(client);
+        if(i>0 && i%6==5) {
+            y_client++;
+            x_client = 101;
+            j=-3;
+        }
+    }
+
     // run farmers threads
     for(int i=0 ;i<farmers.size(); i++){
         farmerThreads[i] = thread(&Farmer::simulatingLife, farmers.at(i));
+    }
+
+    // run clients threads
+    for(int i=0 ;i<clients.size(); i++){
+        clientThreads[i] = thread(&Client::simulatingLife, clients.at(i));
     }
 
     char c = getch();

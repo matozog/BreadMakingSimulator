@@ -17,6 +17,8 @@ ShopTruck deliveryShopTruck;
 thread deliveryShopTruckThread;
 string whatIsNeeded = "flour";
 int amountOfRyeFlour = 0, amountOfWheatFlour = 0, amountOfRyeBread = 0, amountOfWheatRyeBread = 0;
+bool availableStoreWithRyeFlour = true, availableStoreWithWeathFlour = true, availableStoreWithRyeBread = true;
+bool availableStoreWithWheatRyeBread=true, availablePlaceInFlourStore = true, availablePlaceInBreadStore=true;
 
 public:
     Shop();
@@ -27,7 +29,17 @@ public:
     string isNeeded(){return whatIsNeeded;}
     void loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBrad);
     void loadFlourToStore(int amountOfWheatFlour, int amountOfRyeFlour);
-
+    bool getAvailableStoreRFlour(){return availableStoreWithRyeFlour;}
+    bool getAvailableStoreWFlour(){return availableStoreWithWeathFlour;}
+    bool getAvailableStoreRBread(){return availableStoreWithRyeBread;}
+    bool getAvailableStoreWRBread(){return availableStoreWithWheatRyeBread;}
+    void setAvailableStoreRFlour(bool flag){this->availableStoreWithRyeFlour = flag;}
+    void setAvailableStoreWFlour(bool flag){this->availableStoreWithWeathFlour = flag;}
+    void setAvailableStoreRBread(bool flag){this->availableStoreWithRyeBread = flag;}
+    void setAvailableStoreWRBread(bool flag){this->availableStoreWithWheatRyeBread = flag;}
+    bool getAvailablePlaceInFStore(){return availablePlaceInFlourStore;}
+    void setAvailablePlaceInFStore(bool flag){this->availablePlaceInFlourStore = flag;}
+    bool getAvailablePlaceInBStore(bool flag){this->availablePlaceInBreadStore = flag;}
 };
 
 #endif

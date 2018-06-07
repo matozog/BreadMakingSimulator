@@ -21,7 +21,11 @@ enum ID_Road{
     ShopToBakery,
     BakeryToShop,
     BakeryTruckFromGateToMill,
-    ShopTruckFromGateToMill
+    ShopTruckFromGateToMill,
+    ClHomeToShop,
+    ClShopToHome,
+    ClHomeToBakery,
+    ClBakeryToHome
 };
 
 class Road {
@@ -36,6 +40,7 @@ public:
     void moveFarmerToDestination(class Farmer* farmer);
     bool isAvailable();
     void moveTruckToDestination(class Truck* truck);
+    void moveClientToDestination(class Client* client);
     ID_Road getID();
     bool availableNextField(Coordinate nextField);
     vector<Coordinate> getRoad(){return road;}

@@ -1,12 +1,13 @@
 #include "Road.h"
 #include "Farmer.h"
 #include "Truck.h"
+#include "Client.h"
 
 extern mutex mutexConsole;
 extern CoordinateField **mapFields;
-extern mutex mutexFarmers;
+extern mutex mutexFarmers, mutexClients;
 extern int widthMap, heightMap;
-condition_variable cond_moveFarmers;
+condition_variable cond_moveFarmers, cond_moveClients;
 
 Road::Road(ID_Road ID){
     this->ID = ID;
@@ -113,8 +114,62 @@ Road::Road(ID_Road ID){
             tmp_road.push_back({10,55,true});
             break;
         }
+        case ClBakeryToHome:{
+            tmp_road.push_back({8,109,true});
+            tmp_road.push_back({8,107,true});
+            tmp_road.push_back({15,107,true});
+            break;
+        }
+        case ClHomeToBakery:{
+            tmp_road.push_back({15,110,true});
+            tmp_road.push_back({8,110,true});
+            tmp_road.push_back({8,110,true});
+            tmp_road.push_back({8,109,true});
+            break;
+        }
+        case ClHomeToShop:{
+            tmp_road.push_back({18,99,true});
+            tmp_road.push_back({18,86,true});
+            tmp_road.push_back({28,86,true});
+            tmp_road.push_back({28,64,true});
+            break;
+        }
+        case ClShopToHome:{
+            tmp_road.push_back({28,64,true});
+            tmp_road.push_back({29,64,true});
+            tmp_road.push_back({29,88,true});
+            tmp_road.push_back({19,88,true});
+            tmp_road.push_back({19,99,true});
+            break;
+        }
    }
    createRoad(tmp_road);
+}
+
+void Road::moveClientToDestination(Client *client){
+    for(int j=0; j<road.size()-1; j++){
+        usleep(rand()%100000+200000);
+         {
+            unique_lock<mutex> locker(mutexClients);
+            cond_moveClients.wait(locker, [&]{return availableNextField(road.at(j));});
+            mapFields[road.at(j).y][road.at(j).x].available = false;
+            road.at(j).available = false;
+
+            mapFields[client->getY()][client->getX()].available = true;
+            cond_moveClients.notify_one();
+            if(j>0){
+                road.at(j-1).available = true;
+            }
+            mutexConsole.lock();
+            mvprintw(client->getY(), client->getX(), " ");
+            client->setPosition(road.at(j).y, road.at(j).x);
+            mutexConsole.unlock();
+        }
+    }
+    mutexClients.lock();
+    mapFields[road.back().y][road.back().x].available = true;
+    mutexClients.unlock();
+    road.back().available = true;
 }
 
 void Road::moveTruckToDestination(Truck *truck){
@@ -131,7 +186,6 @@ void Road::moveTruckToDestination(Truck *truck){
 
 void Road::moveFarmerToDestination(Farmer *farmer) {
 
-   
     for(int j=0; j<road.size()-1; j++){
         usleep(rand()%100000+200000);
          {
