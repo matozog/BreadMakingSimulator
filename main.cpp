@@ -118,10 +118,20 @@ int main(int argc, char **argv ) {
         c = getch();
     }
 
+     natureFieldWithWheat.join();
+     natureFieldWithRye.join();
+     millThread.join();
+     bakeryThread.join();
+     shopThread.join();
+
     // join farmers threads
     for(int i=0; i<amountOfFarmers;i++)
     {
         farmerThreads[i].join();
+    }
+    for(int i=0; i<amountOfClients; i++)
+    {
+        clientThreads[i].join();
     }
     endwin();
 

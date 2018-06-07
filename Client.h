@@ -12,7 +12,7 @@ class Client{
 
 
     static Road roadHomeToBakery, roadHomeToShop, roadShopToHome, roadBakeryToHome;
-    static const int MAX_LOAD = 5;
+    static const int MAX_LOAD = 4;
     int x, y, x_start, y_start, ID;
     int color = 0;
     string state = "rest", favouriteFlour = "", favouriteBread = "";

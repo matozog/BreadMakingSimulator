@@ -10,15 +10,13 @@ extern condition_variable cond_amountRyeMillFlour, cond_amountWheatMillFlour;
 Mill::Mill(){
     amountOfRyeGrains = 0;
     amountOfWheatGrains = 0;
-    amountOfWheatFlour = 10;
-    amountOfRyeFlour = 10;
     mutexConsole.lock();
     refreshWarehouse();
     mutexConsole.unlock();
 }
 
 void Mill::takeGrainsFromFarmer(string typeField){
-    usleep(rand()%200000+3000000);
+    usleep(rand()%100000+2000000);
     if(typeField == "goFieldWithRye"){
         {
             unique_lock<mutex> locker_RyeTank(mutexTank);
@@ -52,7 +50,7 @@ void Mill::takeGrainsFromFarmer(string typeField){
     mutexConsole.lock();
     refreshTanks();
     mutexConsole.unlock();
-    usleep(rand()%4000000);
+    usleep(rand()%2000000);
 }
 
 bool Mill::getAvailableRyeTank(){
@@ -94,7 +92,7 @@ void Mill::makeFlour(){
             this->availableAmountRyeFlour = false;
         }
         mutexStore.unlock();
-        usleep(rand()%500000);
+        usleep(rand()%300000);
     }
 }
 
@@ -268,7 +266,7 @@ void Mill::refreshWarehouse(){
 void Mill::runProcessLoading(){
     int tmp_x=0;
     for(int i=0; i<7; i++){
-        usleep(rand()%700000 + 500000);
+        usleep(rand()%200000 + 200000);
         mutexConsole.lock();
         attron(COLOR_PAIR(5));
         mvprintw(5,39+tmp_x," ");
@@ -279,7 +277,7 @@ void Mill::runProcessLoading(){
         mutexConsole.unlock();
         tmp_x+=2;
     }
-    usleep(500000);
+    usleep(rand()%200000+200000);
     tmp_x=0;
     for(int i=0; i<7; i++){
         mutexConsole.lock();

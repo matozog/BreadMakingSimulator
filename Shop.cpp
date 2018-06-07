@@ -3,6 +3,7 @@
 extern bool endProgram;
 extern mutex mutexConsole;
 mutex mutexStoreShop;
+extern condition_variable cond_ShopFlourStore, cond_ShopBreadStore;
 
 Shop::Shop(){
 
@@ -36,17 +37,96 @@ void Shop::loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBread){
     mutexStoreShop.lock();
     this->amountOfRyeBread += amountOfRyeBread;
     this->amountOfWheatRyeBread += amountOfWheatRyeBread;
-    mutexStoreShop.unlock();
+    this->availableStoreWithRyeBread = true;
+    this->availableStoreWithWheatRyeBread = true;
+    cond_ShopBreadStore.notify_one();
+    if(amountOfRyeBread <=55 && amountOfWheatRyeBread <=55){
+        this->availablePlaceInBreadStore = true;
+    }
+    else{
+        this->availablePlaceInBreadStore = false;
+    }
     mutexConsole.lock();
     refreshWarehouseWithBread();
     mutexConsole.unlock();
+    usleep(300000);
+    mutexStoreShop.unlock();
+
 }
 
 void Shop::loadFlourToStore(int amountOfRyeFlour, int amountOfWheatFlour){
     mutexStoreShop.lock();
     this->amountOfRyeFlour += amountOfRyeFlour;
     this->amountOfWheatFlour += amountOfWheatFlour;
+    this->availableStoreWithRyeFlour = true;
+    this->availableStoreWithWeathFlour = true;
+    cond_ShopFlourStore.notify_one();
+    if(amountOfRyeFlour<=55 && amountOfWheatFlour<=55){
+        this->availablePlaceInFlourStore = true;
+    }
+    else{
+        this->availablePlaceInFlourStore = false;
+    }
+    mutexConsole.lock();
+    refreshWarehouseWithFlour();
+    mutexConsole.unlock();
+    usleep(300000);
     mutexStoreShop.unlock();
+
+    //usleep(200000);
+}
+
+void Shop::sellRyeBread(int weight){
+    this->amountOfRyeBread -= weight;
+    if(this->amountOfRyeBread>=4){
+        this->availableStoreWithRyeBread = true;
+        cond_ShopBreadStore.notify_one();
+    }
+    else{
+        this->availableStoreWithRyeBread = false;
+    }
+    mutexConsole.lock();
+    refreshWarehouseWithBread();
+    mutexConsole.unlock();
+}
+
+void Shop::sellWheatRyeBread(int weight){
+    this->amountOfWheatRyeBread -= weight;
+    if(this->amountOfWheatRyeBread>=4){
+        this->availableStoreWithRyeBread = true;
+        cond_ShopBreadStore.notify_one();
+    }
+    else{
+        this->availableStoreWithRyeBread = false;
+    }
+    mutexConsole.lock();
+    refreshWarehouseWithBread();
+    mutexConsole.unlock();
+}
+
+void Shop::sellRyeFlour(int weight){
+    this->amountOfRyeFlour -= weight;
+    if(this->amountOfRyeFlour>=4){
+        this->availableStoreWithRyeFlour = true;
+        cond_ShopFlourStore.notify_one();
+    }
+    else{
+        this->availableStoreWithRyeFlour = false;
+    }
+    mutexConsole.lock();
+    refreshWarehouseWithFlour();
+    mutexConsole.unlock();
+}
+
+void Shop::sellWheatFlour(int weight){
+    this->amountOfWheatFlour -= weight;
+    if(this->amountOfWheatFlour>=4){
+        this->availableStoreWithWeathFlour = true;
+        cond_ShopFlourStore.notify_one();
+    }
+    else{
+        this->availableStoreWithWeathFlour = false;
+    }
     mutexConsole.lock();
     refreshWarehouseWithFlour();
     mutexConsole.unlock();

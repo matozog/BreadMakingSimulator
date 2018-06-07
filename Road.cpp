@@ -180,7 +180,7 @@ void Road::moveTruckToDestination(Truck *truck){
             truck->setPosition(road.at(j).y, road.at(j).x);
             mutexConsole.unlock();
         }
-        usleep(200000);
+        usleep(100000);
     }
 }
 

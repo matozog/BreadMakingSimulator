@@ -44,6 +44,10 @@ public:
     bool getAvailableWheatRyeBreadAmount(){return availableWheatRyeAmount;}
     void setAvailableRyeBreadAmount(bool flag) {this->availableRyeBreadAmount = flag;}
     void setAvailableWheatRyeBreadAmount(bool flag){this->availableWheatRyeAmount = flag;}
+    bool getFullRyeBreadStore(){return fullRyeBreadStore;}
+    bool getFullWheatRyeBreadStore(){return fullWheatRyeBreadStore;}
+    bool setAvailableRyeBreadStore(bool flag){this->availableRyeBreadStore = flag;}
+    bool setAvailableWheatRyeBreadStore(bool flag){this->availableWheatRyeBreadStore = flag;}
 };
 
 #endif

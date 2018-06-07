@@ -29,6 +29,14 @@ public:
     string isNeeded(){return whatIsNeeded;}
     void loadBreadToStore(int amountOfRyeBread, int amountOfWheatRyeBrad);
     void loadFlourToStore(int amountOfWheatFlour, int amountOfRyeFlour);
+    void sellWheatRyeBread(int weight);
+    void sellRyeBread(int weight);
+    void sellRyeFlour(int weight);
+    void sellWheatFlour(int weight);
+    int getAmountRyeBread(){return amountOfRyeBread;}
+    int getAmountWheatRyeBread(){return amountOfWheatRyeBread;}
+    int getAmountWheatFlour(){return amountOfWheatFlour;}
+    int getAmountRyeFlour(){return amountOfRyeFlour;}
     bool getAvailableStoreRFlour(){return availableStoreWithRyeFlour;}
     bool getAvailableStoreWFlour(){return availableStoreWithWeathFlour;}
     bool getAvailableStoreRBread(){return availableStoreWithRyeBread;}
