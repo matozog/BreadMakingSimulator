@@ -75,8 +75,6 @@ void Bakery::loadRyeBreadIntoStore(){
     {
         unique_lock<mutex> locker_RyeBread(mutexBreadStore);
         cond_RyeBreadFull.wait(locker_RyeBread, [&]{return getFullRyeBreadStore();});
-//        this->availableRyeBreadStore = false;
-        //this->fullRyeBreadStore = false;
         this->amountOfRyeBread+=20;
         cond_BreadStores.notify_one();
         cond_ClBakeryStore.notify_one();
