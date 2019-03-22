@@ -1,0 +1,1 @@
+g++ -pthread -std=c++11 -o main main.cpp Farmer.cpp Farmer.h Field.cpp Field.h Road.cpp Road.h Mill.cpp Mill.h Truck.h Truck.cpp ShopTruck.h ShopTruck.cpp Bakery.h Bakery.cpp Shop.h Shop.cpp Client.h Client.cpp -lncurses
